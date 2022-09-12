@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import Link from "next/link";
 // components
 
@@ -6,6 +6,34 @@ import IndexDropdown from "components/Dropdowns/IndexDropdown.js";
 
 export default function Navbar(props) {
   const [navbarOpen, setNavbarOpen] = React.useState(false);
+  const [account, setAccount] = React.useState("noaddress");
+
+  const getAccount = async () => {
+    console.log("getAccountIn")
+    try{
+      console.log(window.ethereum.isConnected())
+        setAccount( await  window.ethereum.request({
+          method: "eth_requestAccounts",
+        }));
+
+    } catch (error){
+      console.error(error);
+    }
+  };
+
+  const disconnectAccount = async () =>  {
+    console.log("disconnectAccount")
+    try {
+      console.log(window.ethereum.isConnected())
+      console.log(window.ethereum)
+      if(window.ethereum.isConnected()){
+        window.ethereum.on("disconnect");
+      }
+    }catch (error){
+      console.error(error)
+    }
+  }
+
   return (
     <>
       <nav className="top-0 fixed z-50 w-full flex flex-wrap items-center justify-between px-2 py-3 navbar-expand-lg bg-white shadow">
@@ -86,8 +114,10 @@ export default function Navbar(props) {
                 <button
                   className="bg-blueGray-700 text-white active:bg-blueGray-600 text-xs font-bold uppercase px-4 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none lg:mr-1 lg:mb-0 ml-3 mb-3 ease-linear transition-all duration-150"
                   type="button"
+                  onClick={getAccount}
                 >
-                  <i className="fas fa-arrow-alt-circle-down"></i> Download
+                  <i className="fas fa-arrow-alt-circle-down"></i>
+                  {account}
                 </button>
               </li>
             </ul>
