@@ -1,15 +1,12 @@
 /* eslint-disable react/jsx-no-target-blank */
-import React, {useEffect, useState} from "react";
-import Link from "next/link";
-
-import IndexNavbar from "components/Navbars/IndexNavbar.js";
-import Footer from "components/Footers/Footer.js";
+import React, {useCallback, useEffect, useState} from "react";
 import axios from "axios";
 import {SearchAddressParam} from "../form/SearchAddressParam";
-import {Input} from "postcss";
-import Alert from "./Alert";
+import { useRouter } from 'next/router'
 
 export default function Index() {
+    console.log("Index render")
+    const router = useRouter();
   const [InputAddress, setInputAddress] = useState("0x53f06FCf84E683309583377d00659E009f82659e");
   const [SearchAddress, setSearchAddress] = useState([]);
   const [Searching, setSearching] = useState(false);
@@ -30,9 +27,9 @@ export default function Index() {
 
         axios.post('/hyperwebs/nftcountlistowner',param.value)
             .then(function(response){
-                let test = response.data;
+                let data = response.data;
 
-                setSearchAddress(SearchAddress =>[...SearchAddress, { id:InputAddress, countCollection: test[0].countCollection}]);
+                setSearchAddress(SearchAddress =>[...SearchAddress, { id:InputAddress, countCollection: data[0].countCollection}]);
 
                 setSearching(false);
             })
@@ -45,7 +42,6 @@ export default function Index() {
 
   return (
     <>
-      <IndexNavbar fixed />
       <section className="header relative pt-16 items-center flex h-screen max-h-860-px">
         <div className="container mx-auto items-center flex flex-wrap">
           <div className="w-full md:w-8/12 lg:w-6/12 xl:w-6/12 px-4">
@@ -95,7 +91,13 @@ export default function Index() {
             </div>
               <div className="mt-10 text-center">
                   <button
-                      onClick={SearchAddClick}
+                      onClick={()=>{
+                          router.push({
+                              pathname: '/collections',
+                              query: {SearchAddress : JSON.stringify(SearchAddress)}
+                          })
+
+                      }}
                       className=" bg-pink-500 text-white active:bg-indigo-600 font-bold uppercase text-xs px-3 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150" type="button">
                       View all collection
                       <i className="ml-3 fas fa-list"></i>
@@ -111,7 +113,6 @@ export default function Index() {
         />
 
       </section>
-      <Footer />
     </>
   );
 }

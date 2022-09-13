@@ -1,6 +1,5 @@
 import React from "react";
 import Link from "next/link";
-import IndexNavbar from "components/Navbars/IndexNavbar.js";
 
 // components
 
@@ -10,7 +9,7 @@ import Footer from "components/Footers/Footer.js";
 export default function Landing() {
   return (
     <>
-      <IndexNavbar fixed />
+      <Navbar transparent />
       <main>
         <div className="relative pt-16 pb-32 flex content-center items-center justify-center min-h-screen-75">
           <div

@@ -8,6 +8,8 @@ import PageChange from "components/PageChange/PageChange.js";
 
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "styles/tailwind.css";
+import IndexNavbar from "../components/Navbars/IndexNavbar";
+import Footer from "../components/Footers/Footer";
 
 Router.events.on("routeChangeStart", (url) => {
   console.log(`Loading: ${url}`);
@@ -59,10 +61,10 @@ export default class MyApp extends App {
     return { pageProps };
   }
   render() {
+    console.log("_app.js render")
     const { Component, pageProps } = this.props;
-
+    console.log("this.props = "+JSON.stringify(this.props) )
     const Layout = Component.layout || (({ children }) => <>{children}</>);
-
     return (
       <React.Fragment>
         <Head>
@@ -73,9 +75,14 @@ export default class MyApp extends App {
           <title>Total NFT</title>
           <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script>
         </Head>
+
+        <IndexNavbar fixed />
+
         <Layout>
           <Component {...pageProps} />
         </Layout>
+
+        <Footer />
       </React.Fragment>
     );
   }
