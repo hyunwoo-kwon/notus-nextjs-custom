@@ -3,36 +3,72 @@ import Link from "next/link";
 // components
 
 import IndexDropdown from "components/Dropdowns/IndexDropdown.js";
+import Web3 from "web3";
 
 export default function Navbar(props) {
   const [navbarOpen, setNavbarOpen] = React.useState(false);
   const [account, setAccount] = React.useState("noaddress");
+  const [walletType, setWalletType] = React.useState("");
+  const [web3, setWeb3] = React.useState("");
 
-  const getAccount = async () => {
-    console.log("getAccountIn")
-    try{
-      console.log(window.ethereum.isConnected())
-        setAccount( await  window.ethereum.request({
-          method: "eth_requestAccounts",
-        }));
+  // const getAccount = async () => {
+  //   console.log("getAccountIn")
+  //   try{
+  //     console.log(window.ethereum.isConnected())
+  //       setAccount( await  window.ethereum.request({
+  //         method: "eth_requestAccounts",
+  //       }));
+  //
+  //   } catch (error){
+  //     console.error(error);
+  //   }
+  // };
+  //
+  // const disconnectAccount = async () =>  {
+  //   console.log("disconnectAccount")
+  //   try {
+  //     console.log(window.ethereum.isConnected())
+  //     console.log(window.ethereum)
+  //     if(window.ethereum.isConnected()){
+  //       window.ethereum.on("disconnect");
+  //     }
+  //   }catch (error){
+  //     console.error(error)
+  //   }
+  // }
 
-    } catch (error){
-      console.error(error);
-    }
-  };
-
-  const disconnectAccount = async () =>  {
-    console.log("disconnectAccount")
-    try {
-      console.log(window.ethereum.isConnected())
-      console.log(window.ethereum)
-      if(window.ethereum.isConnected()){
-        window.ethereum.on("disconnect");
+  useEffect(() => {
+    console.log(window.ethereum)
+    // if (typeof window.ethereum !== "undefined") {
+      try {
+        const web = new Web3(window.ethereum);
+        setWeb3(web);
+      } catch (err) {
+        console.log(err);
       }
-    }catch (error){
-      console.error(error)
-    }
-  }
+    // }
+    // if (typeof klaytn !== "undefined") {
+    //   try {
+    //     const caver = new Caver(klaytn);
+    //     setCaver(caver);
+    //   } catch (err) {
+    //     console.log(err);
+    //   }
+    // }
+  }, []);
+
+  const connectWallet = async () => {
+    const accounts = await window.ethereum.request({
+      method: "eth_requestAccounts",
+    });
+    setAccount(accounts[0]);
+    setWalletType("eth");
+  };
+  // const connectKaikas = async () => {
+  //   const accounts = await klaytn.enable();
+  //   setAccount(accounts[0]);
+  //   setWalletType("klay");
+  // };
 
   return (
     <>
@@ -114,7 +150,7 @@ export default function Navbar(props) {
                 <button
                   className="bg-blueGray-700 text-white active:bg-blueGray-600 text-xs font-bold uppercase px-4 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none lg:mr-1 lg:mb-0 ml-3 mb-3 ease-linear transition-all duration-150"
                   type="button"
-                  onClick={getAccount}
+                  onClick={connectWallet}
                 >
                   <i className="fas fa-arrow-alt-circle-down"></i>
                   {account}
