@@ -3,7 +3,7 @@ module.exports = (phase, { defaultConfig }) => {
         return [
             {
                 source: '/:path*',
-                destination: "URL",
+                destination: "http://10.0.3.47:8088/:path*",
             },
         ];
     }
