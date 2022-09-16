@@ -1,41 +1,42 @@
 /* eslint-disable react/jsx-no-target-blank */
-import React, {useCallback, useEffect, useState} from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
-import {SearchAddressParam} from "../form/SearchAddressParam";
+import { SearchAddressParam } from "../form/SearchAddressParam";
 import { useRouter } from 'next/router'
+import { AiFillCloseCircle } from "react-icons/ai"
 
 export default function Index() {
-    console.log("Index render")
-    const router = useRouter();
+  console.log("Index render")
+  const router = useRouter();
   const [InputAddress, setInputAddress] = useState("0x53f06FCf84E683309583377d00659E009f82659e");
   const [SearchAddress, setSearchAddress] = useState([]);
   const [Searching, setSearching] = useState(false);
   const [Alert, setAlert] = useState('false');
 
-  const onChange = (event) =>{
+  const onChange = (event) => {
     setInputAddress(event.target.value);
   }
 
   const SearchAddClick = (event) => {
-    if (SearchAddress.findIndex(search => search.id===InputAddress)!='-1'||InputAddress===''){
-        setInputAddress("");
-    }else{
-        let param = new SearchAddressParam("kip17",InputAddress);
-        setInputAddress("");
+    if (SearchAddress.findIndex(search => search.id === InputAddress) != '-1' || InputAddress === '') {
+      setInputAddress("");
+    } else {
+      let param = new SearchAddressParam("kip17", InputAddress);
+      setInputAddress("");
 
-        setSearching(true);
+      setSearching(true);
 
-        axios.post('/hyperwebs/nftcountlistowner',param.value)
-            .then(function(response){
-                let data = response.data;
+      axios.post('/hyperwebs/nftcountlistowner', param.value)
+        .then(function (response) {
+          let data = response.data;
 
-                setSearchAddress(SearchAddress =>[...SearchAddress, { id:InputAddress, countCollection: data[0].countCollection}]);
+          setSearchAddress(SearchAddress => [...SearchAddress, { id: InputAddress, countCollection: data[0].countCollection }]);
 
-                setSearching(false);
-            })
-            .catch(function (error){
-                setSearching(false);
-            });
+          setSearching(false);
+        })
+        .catch(function (error) {
+          setSearching(false);
+        });
 
     }
   }
@@ -46,63 +47,70 @@ export default function Index() {
         <div className="container mx-auto items-center flex flex-wrap">
           <div className="w-full md:w-8/12 lg:w-6/12 xl:w-6/12 px-4">
             <div className="pt-32 sm:pt-0">
-                <h2 className="font-semibold text-4xl text-blueGray-600">
-                    Total NFT
-                </h2>
-                <p className="mt-4 text-lg leading-relaxed text-blueGray-500">
-                    How much NFT assets do you have? <br/>
-                    Check it right now by simply entering wallet address.
-                </p>
+              <h2 className="font-semibold text-4xl text-blueGray-600">
+                Total NFT
+              </h2>
+              <p className="mt-4 text-lg leading-relaxed text-blueGray-500">
+                How much NFT assets do you have? <br />
+                Check it right now by simply entering wallet address.
+              </p>
               {/* border-solid border-2 border-sky-500 */}
-              <div className="mt-12 flex mb-3 ">
+              <div className="mt-10 flex mb-3 ">
                 <input
-                    type="text"
-                    className="border-1 px-3 py-3 mr-3 placeholder-blueGray-300 text-blueGray-600
+                  type="text"
+                  className="border-1 px-3 py-3 mr-3 placeholder-blueGray-300 text-blueGray-600
                                 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full
                                 ease-linear transition-all duration-150"
-                    placeholder="Please write your Klaytn wallet address"
-                    onChange={onChange}
-                    value={InputAddress}
+                  placeholder="Please write your Klaytn wallet address"
+                  onChange={onChange}
+                  value={InputAddress}
                 />
                 <button
                   onClick={SearchAddClick}
-                  className="flex bg-indigo-500 text-white active:bg-indigo-600 font-bold uppercase text-xs px-3 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150" type="button">
-                    Search address
+                  className="flex bg-indigo-500 text-white active:bg-indigo-600 font-bold uppercase text-xs px-3 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 mb-1  ease-linear transition-all duration-150 " type="button">
+                  Search address
                 </button>
               </div>
-                {SearchAddress.map((item, key) => (
+              {SearchAddress.map((item, key) => (
 
-                    <div className="flex border-x-4 border-indigo-500 mb-2" key={item.id}>
+                <div className="flex text-sm mb-4" key={item.id}>
+                  <div className="bg-gray-100 rounded-full items-center hover:bg-gray-300 focus:outline-none border border-slate-300 shadow-md p-2">
+                    <span className="font-bold ml-1"> Address</span> : {item.id}
+                    <span className="ml-3 text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-lightBlue-600 bg-lightBlue-200">
 
-                        <span className="font-bold"> Address</span> : {item.id}
-                        <span className="ml-3 text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-lightBlue-600 bg-lightBlue-200 uppercase last:mr-0 mr-1">
+                      {item.countCollection} {item.countCollection > 1 ? 'Collections' : 'Collection'}
+                    </span>
+                  </div>
+                  <AiFillCloseCircle className="text-2xl justify-center cursor-pointer" onClick={() => {
+                    let copy = [...SearchAddress]
+                    copy.splice(key, 1)
+                    setSearchAddress(copy);
+                  }} />
+                </div>
 
-                            {item.countCollection} {item.countCollection>1 ? 'Collections' : 'Collection' }
-                        </span>
+              ))}
+              {Searching ? (
+                <div className="block mb-4">
+                  <i className="fas fa-circle-notch animate-spin text-gray-500 mr-3 text-sm "></i>
+                </div>
+              ) : null}
 
-                    </div>
-
-                ))}
-                {Searching ? (
-                    <div className="block mb-4">
-                        <i className="fas fa-circle-notch animate-spin text-gray-500 mr-3 text-sm "></i>
-                    </div>
-                ): null }
             </div>
-              <div className="mt-10 text-center">
-                  <button
-                      onClick={()=>{
-                          router.push({
-                              pathname: '/collections',
-                              query: {SearchAddress : JSON.stringify(SearchAddress)}
-                          })
 
-                      }}
-                      className=" bg-pink-500 text-white active:bg-indigo-600 font-bold uppercase text-xs px-3 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150" type="button">
-                      View all collection
-                      <i className="ml-3 fas fa-list"></i>
-                  </button>
-              </div>
+            <div className="mt-10 text-center ">
+              <button
+                onClick={() => {
+                  router.push({
+                    pathname: '/collections',
+                    query: { SearchAddress: JSON.stringify(SearchAddress) }
+                  })
+
+                }}
+                className=" bg-pink-500 text-white active:bg-indigo-600 font-bold uppercase text-xs px-3 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150 " type="button">
+                View all collection
+                <i className="ml-3 fas fa-list p-2"></i>
+              </button>
+            </div>
 
           </div>
         </div>
