@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
+import { AiFillCloseCircle } from "react-icons/ai"
 
 
 
@@ -18,6 +19,7 @@ export default function Collections(props) {
         e.target.src = "/img/team-2-800x800.jpg";
     }
 
+    const addressList = SearchAddress.map((address) => <li key={address.id}>{address.id}</li>);
     const SearchCollection = () => {
         setLoading(true);
         let param;
@@ -268,6 +270,21 @@ export default function Collections(props) {
                             ** View contract 버튼을 통해 scope 조회 가능<br />
                             ** collection 숫자가 맞지 않는 경우가 있어 조회 로직및 아이콘은 변경 예정<br />
                             ** volume 탭에 현재 가치 또는 구매에 사용한 USD를 출력해 주면 좋은 정보가 될것 같습니다.<br />
+                            {SearchAddress.map((item, key) => (
+                                <div className="flex text-sm mb-4" key={item.id}>
+                                    <div className="bg-gray-100 rounded-full items-center hover:bg-gray-300 focus:outline-none border border-slate-300 shadow-md p-2">
+                                        <span className="font-bold ml-1"> Address</span> : {item.id}
+                                        <span className="ml-3 text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-lightBlue-600 bg-lightBlue-200">
+                                            {item.countCollection} {item.countCollection > 1 ? 'Collections' : 'Collection'}
+                                        </span>
+                                    </div>
+                                    <AiFillCloseCircle className="text-2xl justify-center cursor-pointer" onClick={() => {
+                                        let copy = [...SearchAddress]
+                                        copy.splice(key, 1)
+                                        setSearchAddress(copy);
+                                    }} />
+                                </div>
+                            ))}
                         </div>
                     )}
                     <div className="py-24 mx-auto">

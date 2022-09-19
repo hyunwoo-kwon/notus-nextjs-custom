@@ -4,6 +4,7 @@ import axios from "axios";
 import { SearchAddressParam } from "../form/SearchAddressParam";
 import { useRouter } from 'next/router'
 import { AiFillCloseCircle } from "react-icons/ai"
+import WalletList from "components/WalletList";
 
 export default function Index() {
   console.log("Index render")
@@ -15,6 +16,12 @@ export default function Index() {
 
   const onChange = (event) => {
     setInputAddress(event.target.value);
+  }
+
+  const RandomSearchWallet = () => {
+    WalletList.sort(() => 0.5 - Math.random())
+    setInputAddress(WalletList[0])
+    WalletList.shift();
   }
 
   const SearchAddClick = (event) => {
@@ -70,6 +77,11 @@ export default function Index() {
                   className="flex bg-indigo-500 text-white active:bg-indigo-600 font-bold uppercase text-xs px-3 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 mb-1  ease-linear transition-all duration-150 " type="button">
                   Search address
                 </button>
+                <button
+                  onClick={RandomSearchWallet}
+                  className="flex bg-indigo-500 text-white active:bg-indigo-600 font-bold uppercase text-xs px-3 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 mb-1  ease-linear transition-all duration-150 " type="button">
+                  Random wallet
+                </button>
               </div>
               {SearchAddress.map((item, key) => (
 
@@ -85,6 +97,7 @@ export default function Index() {
                     let copy = [...SearchAddress]
                     copy.splice(key, 1)
                     setSearchAddress(copy);
+                    WalletList.unshift(item.id);
                   }} />
                 </div>
 
@@ -119,7 +132,6 @@ export default function Index() {
           src="/img/pattern_nextjs.png"
           alt="..."
         />
-
       </section>
     </>
   );
