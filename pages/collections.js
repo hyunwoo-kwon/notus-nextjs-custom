@@ -3,9 +3,6 @@ import { useRouter } from "next/router";
 import Image from "next/image";
 import { AiFillCloseCircle } from "react-icons/ai"
 
-
-
-
 // components
 import { SearchAddressParam } from "../form/SearchAddressParam";
 import axios from "axios";
@@ -14,31 +11,27 @@ import PageLoader from "next/dist/client/page-loader";
 export default function Collections(props) {
     const router = useRouter();
     const [SearchAddress, setSearchAddress] = useState(JSON.parse(router.query.SearchAddress));
+    const [WorkUUID, setWorkUUID] = useState(JSON.parse(router.query.WorkUUID));
     const [Collection, setCollection] = useState([]);
     const [CollectionImg, setCollectionImg] = useState([]);
+    const [Price, setPrice] = useState([]);
     const [Loading, setLoading] = useState(false);
     const handleImgError = (e) => {
         e.target.src = "/img/team-2-800x800.jpg";
     }
 
     const addressList = SearchAddress.map((address) => <li key={address.id}>{address.id}</li>);
+
     const SearchCollection = () => {
         setLoading(true);
         let param;
-        console.log(SearchAddress)
         SearchAddress.forEach((item, index) => {
-            console.log("index = " + index + " item = " + item)
-
             if (index > 0) {
                 param.addAddress("kip17", item.id);
             } else {
                 param = new SearchAddressParam("kip17", item.id);
             }
         })
-
-        // let param = new SearchAddressParam("kip17","0x66CF55c6cAB5e99Cdd78F097C0528dD7F6259eF5");
-        // param.addAddress("kip17","0x128bc210920a37f383a89CD4c3f6C6fCDDe2296C");
-        // param.addAddress("kip17","0x53f06FCf84E683309583377d00659E009f82659e");
 
         setCollection([]);
         axios.post('/hyperwebs/nftlistowner', param.value)
@@ -47,11 +40,14 @@ export default function Collections(props) {
 
                 data.forEach((d, index) => {
                     setCollection(collection => [...collection, {
-                        id: index, address: d.address, contractAddress: d.contractAddress, tokenId: d.tokenId, tokenIdInt: d.tokenIdInt
+                        id: index, type:'kip17', address: d.address, contractAddress: d.contractAddress, tokenId: d.tokenId, tokenIdInt: d.tokenIdInt
                         , tokenUri: d.tokenUri, finalPrice: d.finalPrice
                     }])
                     setCollectionImg(img => [...img,{
                         id: 'img'+index, imageUrl: '', imageLoad: false
+                    }])
+                    setPrice(price => [...price, {
+                        id: 'final'+index, finalPrice: '', floorPrice: '', priceLoad: false
                     }])
                 })
 
@@ -81,6 +77,28 @@ export default function Collections(props) {
         }
     }
 
+    function SearchPrice(index) {
+        let tempPrice = [...Price];
+
+        if(tempPrice[index]?.priceLoad ==false){
+
+            tempPrice[index].priceLoad = true;
+            setPrice(tempPrice);
+
+            axios.get('/hyperwebs/nftsingleprice?workUUID='+WorkUUID+'&type='+Collection[index].type+'&contractAddress='+Collection[index].contractAddress+'&tokenId='+Collection[index].tokenId)
+                .then(function(response){
+                    let data = response.data;
+                    let tempPrice = [...Price];
+
+                    tempPrice[index].finalPrice = data.finalPrice;
+                    tempPrice[index].floorPrice = data.floorPrice;
+
+                    setPrice(tempPrice);
+                })
+
+        }
+    }
+
     useEffect(() => {
         SearchCollection();
     }, []);
@@ -91,7 +109,6 @@ export default function Collections(props) {
             <br />
             <br />
             <br />
-
             <main>
                 {Loading ? (
                     <div>
@@ -185,6 +202,7 @@ export default function Collections(props) {
                                         let copy = [...SearchAddress]
                                         copy.splice(key, 1)
                                         setSearchAddress(copy);
+                                        SearchCollection();
                                     }} />
                                 </div>
                             ))}
@@ -238,10 +256,12 @@ export default function Collections(props) {
                                         )}
                                         {CollectionImg[item.id]?.imageLoad ? null: SearchImgURL(item.id)}
 
+                                        {/*{Price[item.id]?.priceLoad ? null: SearchPrice(item.id)}*/}
+
                                         <div className="p-4 flex flex-col">
                                             <h2 className="tracking-widest text-xs title-font font-medium text-gray-400 mb-1">No.{item.tokenIdInt}</h2>
                                             <h1 className="title-font text-lg font-medium text-gray-900 mb-3">NFT NAME</h1>
-                                            <p className="leading-relaxed mb-3 -align-left flex">Final price : <img class="pt-3 object-scale-down h-5" src="/img/token/klaytnToken.png" /> {item.finalPrice}</p>
+                                            <p className="leading-relaxed mb-3 -align-left flex">Final price : <img class="pt-3 object-scale-down h-5" src="/img/token/klaytnToken.png" /> {Price[item.id]?.priceLoad ? Price[item.id]?.finalPrice: 'searching..'}</p>
                                             <div className="flex items-center flex-wrap ">
                                                 <a className="text-indigo-500 inline-flex items-center md:mb-2 lg:mb-0" target="_blank" href={'https://scope.klaytn.com/nft/' + item.contractAddress + '/' + item.tokenIdInt}>View contract
                                                     <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">

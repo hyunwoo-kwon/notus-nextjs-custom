@@ -1,10 +1,10 @@
 export class SearchAddressParam {
-    constructor(type, address) {
-        this.value = [{type,address}];
+    constructor(type, address, workUUID) {
+        this.value = [{type,address, workUUID}];
     }
 
-    addAddress(type, address){
-        this.value.push({type,address});
+    addAddress(type, address, workUUID){
+        this.value.push({type,address, workUUID});
     }
 
 }

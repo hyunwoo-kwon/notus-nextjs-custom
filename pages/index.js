@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-no-target-blank */
 import React, { useCallback, useEffect, useState } from "react";
+import uuid from "react-uuid";
 import axios from "axios";
 import { SearchAddressParam } from "../form/SearchAddressParam";
 import { useRouter } from 'next/router'
@@ -12,7 +13,7 @@ export default function Index() {
   const [InputAddress, setInputAddress] = useState("0x53f06FCf84E683309583377d00659E009f82659e");
   const [SearchAddress, setSearchAddress] = useState([]);
   const [Searching, setSearching] = useState(false);
-  const [Alert, setAlert] = useState('false');
+  const [WorkUUID, setWorkUUID] = useState(uuid());
 
   const onChange = (event) => {
     setInputAddress(event.target.value);
@@ -28,12 +29,13 @@ export default function Index() {
     if (SearchAddress.findIndex(search => search.id === InputAddress) != '-1' || InputAddress === '') {
       setInputAddress("");
     } else {
-      let param = new SearchAddressParam("kip17", InputAddress);
+      let param = new SearchAddressParam("kip17", InputAddress, WorkUUID);
+
       setInputAddress("");
 
       setSearching(true);
 
-      axios.post('/hyperwebs/nftcountlistowner', param.value)
+      axios.post('/hyperwebs/eoanftcount', param.value)
         .then(function (response) {
           let data = response.data;
 
@@ -46,6 +48,16 @@ export default function Index() {
         });
 
     }
+  }
+
+  function DeleteAddress(Address){
+    let param = new SearchAddressParam("kip17", Address, WorkUUID);
+
+    axios.post('/hyperwebs/deladdress', param.value)
+        .catch(function (error) {
+          console.log("error = " + error)
+        });
+
   }
 
   return (
@@ -96,6 +108,7 @@ export default function Index() {
                   <AiFillCloseCircle className="text-2xl justify-center cursor-pointer" onClick={() => {
                     let copy = [...SearchAddress]
                     copy.splice(key, 1)
+                    DeleteAddress(item.id);
                     setSearchAddress(copy);
                     WalletList.unshift(item.id);
                   }} />
@@ -115,7 +128,8 @@ export default function Index() {
                 onClick={() => {
                   router.push({
                     pathname: '/collections',
-                    query: { SearchAddress: JSON.stringify(SearchAddress) }
+                    query: { SearchAddress: JSON.stringify(SearchAddress),
+                             WorkUUID: JSON.stringify(WorkUUID)}
                   })
 
                 }}
