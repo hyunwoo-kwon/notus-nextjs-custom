@@ -9,11 +9,13 @@ import { AiFillCloseCircle } from "react-icons/ai"
 // components
 import { SearchAddressParam } from "../form/SearchAddressParam";
 import axios from "axios";
+import PageLoader from "next/dist/client/page-loader";
 
 export default function Collections(props) {
     const router = useRouter();
     const [SearchAddress, setSearchAddress] = useState(JSON.parse(router.query.SearchAddress));
     const [Collection, setCollection] = useState([]);
+    const [CollectionImg, setCollectionImg] = useState([]);
     const [Loading, setLoading] = useState(false);
     const handleImgError = (e) => {
         e.target.src = "/img/team-2-800x800.jpg";
@@ -34,8 +36,6 @@ export default function Collections(props) {
             }
         })
 
-
-
         // let param = new SearchAddressParam("kip17","0x66CF55c6cAB5e99Cdd78F097C0528dD7F6259eF5");
         // param.addAddress("kip17","0x128bc210920a37f383a89CD4c3f6C6fCDDe2296C");
         // param.addAddress("kip17","0x53f06FCf84E683309583377d00659E009f82659e");
@@ -48,7 +48,10 @@ export default function Collections(props) {
                 data.forEach((d, index) => {
                     setCollection(collection => [...collection, {
                         id: index, address: d.address, contractAddress: d.contractAddress, tokenId: d.tokenId, tokenIdInt: d.tokenIdInt
-                        , tokenUri: d.tokenUri, finalPrice: d.finalPrice, imageUrl: d.imageUrl
+                        , tokenUri: d.tokenUri, finalPrice: d.finalPrice
+                    }])
+                    setCollectionImg(img => [...img,{
+                        id: 'img'+index, imageUrl: '', imageLoad: false
                     }])
                 })
 
@@ -56,20 +59,26 @@ export default function Collections(props) {
             })
     }
 
-    function SearchImgURL(uri) {
-        let return_data = "";
-        // axios.get('/hyperwebs/nftimageurl?uri='+uri)
-        //     .then(function(response){
-        //         let data = response.data;
-        //         return_data = data.url;
-        //         console.log("data.url = " +data.url)
-        //     })
+    function SearchImgURL(index) {
+        let tempCollectionImg = [...CollectionImg];
 
-        // fetch('/hyperwebs/nftimageurl?uri='+uri)
-        //     .then( res=> {
-        //         console.log("res = " + JSON.stringify(res))
-        //         return res.url;
-        //     });
+        if(tempCollectionImg[index]?.imageLoad ==false){
+
+            tempCollectionImg[index].imageLoad = true;
+            setCollectionImg(tempCollectionImg);
+
+            axios.get('/hyperwebs/nftimageurl?uri='+Collection[index].tokenUri)
+                .then(function(response){
+                    let data = response.data;
+                    let tempCollectionImg = [...CollectionImg];
+
+                    tempCollectionImg[index].imageUrl = data.url;
+                    tempCollectionImg[index].imageLoad = true;
+
+                    setCollectionImg(tempCollectionImg);
+                })
+
+        }
     }
 
     useEffect(() => {
@@ -90,109 +99,6 @@ export default function Collections(props) {
                             <i className="fas fa-circle-notch animate-spin text-gray-500 mr-10 text-6xl"></i>
                             <h1 className="mr-6 mt-3">Searching...</h1>
                         </div>
-                        {/*<div className="blur hober:blur-lg">*/}
-                        {/*    <section className="text-gray-400 body-font">*/}
-                        {/*        <div className="container px-5 py-24 mx-auto">*/}
-                        {/*            <div className="flex flex-wrap -m-4">*/}
-                        {/*                <div className="p-4 md:w-1/3" >*/}
-                        {/*                    <div className="h-full border-2 border-gray-200 border-opacity-60 rounded-lg overflow-hidden">*/}
-                        {/*                        <img className="lg:h-48 md:h-36 w-full object-cover object-center" src="/img/nft/Azuki_9605.jpg" alt="blog"/>*/}
-                        {/*                        <div className="p-6">*/}
-                        {/*                            <h2 className="tracking-widest text-xs title-font font-medium text-gray-400 mb-1">NFT category</h2>*/}
-                        {/*                            <h1 className="title-font text-lg font-medium text-gray-900 mb-3">The Catalyzer</h1>*/}
-                        {/*                            <p className="leading-relaxed mb-3">NFT collections by Total NFT</p>*/}
-                        {/*                            <div className="flex items-center flex-wrap ">*/}
-                        {/*                                <a className="text-indigo-500 inline-flex items-center md:mb-2 lg:mb-0">Learn More*/}
-                        {/*                                    <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">*/}
-                        {/*                                        <path d="M5 12h14"></path>*/}
-                        {/*                                        <path d="M12 5l7 7-7 7"></path>*/}
-                        {/*                                    </svg>*/}
-                        {/*                                </a>*/}
-                        {/*                                <span className="text-gray-400 mr-3 inline-flex items-center lg:ml-auto md:ml-0 ml-auto leading-none text-sm pr-3 py-1 border-r-2 border-gray-200">*/}
-                        {/*                            <svg className="w-4 h-4 mr-1" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">*/}
-                        {/*                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>*/}
-                        {/*                                <circle cx="12" cy="12" r="3"></circle>*/}
-                        {/*                            </svg>1.2K*/}
-                        {/*                        </span>*/}
-                        {/*                                <span className="text-gray-400 inline-flex items-center leading-none text-sm">*/}
-                        {/*                            <svg className="w-4 h-4 mr-1" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">*/}
-                        {/*                                <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"></path>*/}
-                        {/*                            </svg>6*/}
-                        {/*                        </span>*/}
-                        {/*                            </div>*/}
-                        {/*                        </div>*/}
-                        {/*                    </div>*/}
-                        {/*                </div>*/}
-                        {/*            </div>*/}
-                        {/*        </div>*/}
-                        {/*        <div className="container px-5 py-24 mx-auto">*/}
-                        {/*            <div className="flex flex-wrap -m-4">*/}
-                        {/*                <div className="p-4 md:w-1/3" >*/}
-                        {/*                    <div className="h-full border-2 border-gray-200 border-opacity-60 rounded-lg overflow-hidden">*/}
-                        {/*                        <img className="lg:h-48 md:h-36 w-full object-cover object-center" src="/img/nft/bellygom_1119.png" alt="blog"/>*/}
-                        {/*                        <div className="p-6">*/}
-                        {/*                            <h2 className="tracking-widest text-xs title-font font-medium text-gray-400 mb-1">NFT category</h2>*/}
-                        {/*                            <h1 className="title-font text-lg font-medium text-gray-900 mb-3">The Catalyzer</h1>*/}
-                        {/*                            <p className="leading-relaxed mb-3">NFT collections by Total NFT</p>*/}
-                        {/*                            <div className="flex items-center flex-wrap ">*/}
-                        {/*                                <a className="text-indigo-500 inline-flex items-center md:mb-2 lg:mb-0">Learn More*/}
-                        {/*                                    <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">*/}
-                        {/*                                        <path d="M5 12h14"></path>*/}
-                        {/*                                        <path d="M12 5l7 7-7 7"></path>*/}
-                        {/*                                    </svg>*/}
-                        {/*                                </a>*/}
-                        {/*                                <span className="text-gray-400 mr-3 inline-flex items-center lg:ml-auto md:ml-0 ml-auto leading-none text-sm pr-3 py-1 border-r-2 border-gray-200">*/}
-                        {/*                            <svg className="w-4 h-4 mr-1" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">*/}
-                        {/*                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>*/}
-                        {/*                                <circle cx="12" cy="12" r="3"></circle>*/}
-                        {/*                            </svg>1.2K*/}
-                        {/*                        </span>*/}
-                        {/*                                <span className="text-gray-400 inline-flex items-center leading-none text-sm">*/}
-                        {/*                            <svg className="w-4 h-4 mr-1" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">*/}
-                        {/*                                <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"></path>*/}
-                        {/*                            </svg>6*/}
-                        {/*                        </span>*/}
-                        {/*                            </div>*/}
-                        {/*                        </div>*/}
-                        {/*                    </div>*/}
-                        {/*                </div>*/}
-                        {/*            </div>*/}
-                        {/*        </div>*/}
-                        {/*        <div className="container px-5 py-24 mx-auto">*/}
-                        {/*            <div className="flex flex-wrap -m-4">*/}
-                        {/*                <div className="p-4 md:w-1/3" >*/}
-                        {/*                    <div className="h-full border-2 border-gray-200 border-opacity-60 rounded-lg overflow-hidden">*/}
-                        {/*                        <img className="lg:h-48 md:h-36 w-full object-cover object-center" src="/img/nft/Doodle_8712.png" alt="blog"/>*/}
-                        {/*                        <div className="p-6">*/}
-                        {/*                            <h2 className="tracking-widest text-xs title-font font-medium text-gray-400 mb-1">NFT category</h2>*/}
-                        {/*                            <h1 className="title-font text-lg font-medium text-gray-900 mb-3">The Catalyzer</h1>*/}
-                        {/*                            <p className="leading-relaxed mb-3">NFT collections by Total NFT</p>*/}
-                        {/*                            <div className="flex items-center flex-wrap ">*/}
-                        {/*                                <a className="text-indigo-500 inline-flex items-center md:mb-2 lg:mb-0">Learn More*/}
-                        {/*                                    <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">*/}
-                        {/*                                        <path d="M5 12h14"></path>*/}
-                        {/*                                        <path d="M12 5l7 7-7 7"></path>*/}
-                        {/*                                    </svg>*/}
-                        {/*                                </a>*/}
-                        {/*                                <span className="text-gray-400 mr-3 inline-flex items-center lg:ml-auto md:ml-0 ml-auto leading-none text-sm pr-3 py-1 border-r-2 border-gray-200">*/}
-                        {/*                            <svg className="w-4 h-4 mr-1" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">*/}
-                        {/*                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>*/}
-                        {/*                                <circle cx="12" cy="12" r="3"></circle>*/}
-                        {/*                            </svg>1.2K*/}
-                        {/*                        </span>*/}
-                        {/*                                <span className="text-gray-400 inline-flex items-center leading-none text-sm">*/}
-                        {/*                            <svg className="w-4 h-4 mr-1" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">*/}
-                        {/*                                <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"></path>*/}
-                        {/*                            </svg>6*/}
-                        {/*                        </span>*/}
-                        {/*                            </div>*/}
-                        {/*                        </div>*/}
-                        {/*                    </div>*/}
-                        {/*                </div>*/}
-                        {/*            </div>*/}
-                        {/*        </div>*/}
-                        {/*    </section>*/}
-                        {/*</div>*/}
                     </div>
 
                 ) : null}
@@ -267,9 +173,6 @@ export default function Collections(props) {
                                     </div>
                                 </div>
                             </div>
-                            ** View contract 버튼을 통해 scope 조회 가능<br />
-                            ** collection 숫자가 맞지 않는 경우가 있어 조회 로직및 아이콘은 변경 예정<br />
-                            ** volume 탭에 현재 가치 또는 구매에 사용한 USD를 출력해 주면 좋은 정보가 될것 같습니다.<br />
                             {SearchAddress.map((item, key) => (
                                 <div className="flex text-sm mb-4" key={item.id}>
                                     <div className="bg-gray-100 rounded-full items-center hover:bg-gray-300 focus:outline-none border border-slate-300 shadow-md p-2">
@@ -289,14 +192,25 @@ export default function Collections(props) {
                     )}
                     <div className="py-24 mx-auto">
                         <div className="flex flex-wrap m-4">
-                            {Collection.map((item) => (
+                            {Collection?.map((item) => (
                                 <div className="p-4 md:w-1/3" id={item.id}>
                                     <div className="h-full border-2 border-gray-200 border-opacity-60 rounded-lg overflow-hidden">
-                                        {item.imageUrl === '' ? (
+                                        {CollectionImg[item.id]?.imageLoad == false ? (
+                                                <img
+                                                    className="rounded-t-xl"
+                                                    src="/img/loading.gif"
+                                                    alt="cover image"
+                                                    width="100%"
+                                                    height="100px"
+                                                    layout="responsive"
+                                                    objectFit="cover"
+                                                    quality={100}
+                                                />
+                                            )   :
+                                            CollectionImg[item.id]?.imageUrl === '' ? (
                                             <img
                                                 className="rounded-t-xl"
-                                                src={item.imageUrl}
-                                                onError={handleImgError}
+                                                src="/img/team-2-800x800.jpg"
                                                 alt="cover image"
                                                 width="100%"
                                                 height="100px"
@@ -305,14 +219,14 @@ export default function Collections(props) {
                                                 quality={100}
                                             />
 
-                                        ) : item.imageUrl.includes('.mp4') ? (
-                                            <video loop autoPlay>
-                                                <source src={item.imageUrl} type="video/mp4"></source>
+                                        ) : CollectionImg[item.id]?.imageUrl.includes('.mp4') ? (
+                                            <video>
+                                                <source src={CollectionImg[item.id]?.imageUrl} type="video/mp4"></source>
                                             </video>
                                         ) : (
                                             <img
                                                 className="rounded-t-xl"
-                                                src={item.imageUrl}
+                                                src={CollectionImg[item.id]?.imageUrl}
                                                 onError={handleImgError}
                                                 alt="cover image"
                                                 width="100%"
@@ -322,7 +236,7 @@ export default function Collections(props) {
                                                 quality={100}
                                             />
                                         )}
-
+                                        {CollectionImg[item.id]?.imageLoad ? null: SearchImgURL(item.id)}
 
                                         <div className="p-4 flex flex-col">
                                             <h2 className="tracking-widest text-xs title-font font-medium text-gray-400 mb-1">No.{item.tokenIdInt}</h2>
