@@ -7,6 +7,7 @@ import { AiFillCloseCircle } from "react-icons/ai"
 import { SearchAddressParam } from "../form/SearchAddressParam";
 import axios from "axios";
 import PageLoader from "next/dist/client/page-loader";
+import { Link } from "react-scroll";
 
 export default function Collections(props) {
     const router = useRouter();
@@ -17,7 +18,7 @@ export default function Collections(props) {
     const [Price, setPrice] = useState([]);
     const [Loading, setLoading] = useState(false);
     const handleImgError = (e) => {
-        e.target.src = "/img/team-2-800x800.jpg";
+        e.target.src = "/img/default-item.png";
     }
 
     const addressList = SearchAddress.map((address) => <li key={address.id}>{address.id}</li>);
@@ -118,11 +119,27 @@ export default function Collections(props) {
                     </div>
 
                 ) : null}
-                <section className="text-gray-400 body-font">
+                <section className="text-gray-400 body-font relative">
+                    <div className="fixed z-10 right-10 bottom-10 w-20 h-20">
+
+                        {/* 해당 위치로 스크롤 되며 올라오는 플로팅 버튼. 리스트가 길 경우 필요하면 사용 */}
+                        <Link
+                            className="shadow-xl cursor-pointer"
+                            activeClass="active"
+                            to="section1"
+                            spy={true}
+                            smooth={true}
+                            offset={-100}
+                            duration={700}>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-12 h-12 hover:text-gray-800 ">
+                                <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm.53 5.47a.75.75 0 00-1.06 0l-3 3a.75.75 0 101.06 1.06l1.72-1.72v5.69a.75.75 0 001.5 0v-5.69l1.72 1.72a.75.75 0 101.06-1.06l-3-3z" clipRule="evenodd" />
+                            </svg>
+                        </Link>
+                    </div>
                     {Loading ? null : (
-                        <div className="container px-5 mx-auto">
-                            <div className="flex flex-col text-center w-full mb-20">
-                                <h1 className="sm:text-3xl text-2xl font-medium title-font mb-4 text-gray-900">
+                        <div className="container px-5 mx-auto relative" id="section1">
+                            <div className="flex flex-col text-center w-full mb-20 relative">
+                                <h1 className="sm:text-3xl text-2xl font-extrabold title-font mb-4 text-gray-900">
                                     Your  NFT collections
                                 </h1>
                             </div>
@@ -201,7 +218,7 @@ export default function Collections(props) {
                                         let copy = [...SearchAddress]
                                         copy.splice(key, 1)
                                         setSearchAddress(copy);
-                                        SearchCollection();
+                                        // setCollection();
                                     }} />
                                 </div>
                             ))}
