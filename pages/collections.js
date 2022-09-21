@@ -21,7 +21,6 @@ export default function Collections(props) {
     }
 
     const addressList = SearchAddress.map((address) => <li key={address.id}>{address.id}</li>);
-
     const SearchCollection = () => {
         setLoading(true);
         let param;
@@ -40,14 +39,14 @@ export default function Collections(props) {
 
                 data.forEach((d, index) => {
                     setCollection(collection => [...collection, {
-                        id: index, type:'kip17', address: d.address, contractAddress: d.contractAddress, tokenId: d.tokenId, tokenIdInt: d.tokenIdInt
+                        id: index, type: 'kip17', address: d.address, contractAddress: d.contractAddress, tokenId: d.tokenId, tokenIdInt: d.tokenIdInt
                         , tokenUri: d.tokenUri, finalPrice: d.finalPrice
                     }])
-                    setCollectionImg(img => [...img,{
-                        id: 'img'+index, imageUrl: '', imageLoad: false
+                    setCollectionImg(img => [...img, {
+                        id: 'img' + index, imageUrl: '', imageLoad: false
                     }])
                     setPrice(price => [...price, {
-                        id: 'final'+index, finalPrice: '', floorPrice: '', priceLoad: false
+                        id: 'final' + index, finalPrice: '', floorPrice: '', priceLoad: false
                     }])
                 })
 
@@ -58,13 +57,13 @@ export default function Collections(props) {
     function SearchImgURL(index) {
         let tempCollectionImg = [...CollectionImg];
 
-        if(tempCollectionImg[index]?.imageLoad ==false){
+        if (tempCollectionImg[index]?.imageLoad == false) {
 
             tempCollectionImg[index].imageLoad = true;
             setCollectionImg(tempCollectionImg);
 
-            axios.get('/hyperwebs/nftimageurl?uri='+Collection[index].tokenUri)
-                .then(function(response){
+            axios.get('/hyperwebs/nftimageurl?uri=' + Collection[index].tokenUri)
+                .then(function (response) {
                     let data = response.data;
                     let tempCollectionImg = [...CollectionImg];
 
@@ -80,13 +79,13 @@ export default function Collections(props) {
     function SearchPrice(index) {
         let tempPrice = [...Price];
 
-        if(tempPrice[index]?.priceLoad ==false){
+        if (tempPrice[index]?.priceLoad == false) {
 
             tempPrice[index].priceLoad = true;
             setPrice(tempPrice);
 
-            axios.get('/hyperwebs/nftsingleprice?workUUID='+WorkUUID+'&type='+Collection[index].type+'&contractAddress='+Collection[index].contractAddress+'&tokenId='+Collection[index].tokenId)
-                .then(function(response){
+            axios.get('/hyperwebs/nftsingleprice?workUUID=' + WorkUUID + '&type=' + Collection[index].type + '&contractAddress=' + Collection[index].contractAddress + '&tokenId=' + Collection[index].tokenId)
+                .then(function (response) {
                     let data = response.data;
                     let tempPrice = [...Price];
 
@@ -209,59 +208,66 @@ export default function Collections(props) {
                         </div>
                     )}
                     <div className="py-24 mx-auto">
-                        <div className="flex flex-wrap m-4">
+                        <div className="grid md:grid-cols-5 sm:grid-cols-2 mx-auto ">
                             {Collection?.map((item) => (
-                                <div className="p-4 md:w-1/3" id={item.id}>
-                                    <div className="h-full border-2 border-gray-200 border-opacity-60 rounded-lg overflow-hidden">
+                                <div className="p-4" id={item.id}>
+                                    <div
+                                        className="h-full border-2 border-gray-200 border-opacity-60 rounded-lg bg-cover cursor-pointer
+                                                    overflow-hidden transition duration-300 transform hover:shadow-lg hover:scale-105">
                                         {CollectionImg[item.id]?.imageLoad == false ? (
-                                                <img
-                                                    className="rounded-t-xl"
-                                                    src="/img/loading.gif"
-                                                    alt="cover image"
-                                                    width="100%"
-                                                    height="100px"
-                                                    layout="responsive"
-                                                    objectFit="cover"
-                                                    quality={100}
-                                                />
-                                            )   :
-                                            CollectionImg[item.id]?.imageUrl === '' ? (
                                             <img
-                                                className="rounded-t-xl"
-                                                src="/img/team-2-800x800.jpg"
-                                                alt="cover image"
-                                                width="100%"
-                                                height="100px"
-                                                layout="responsive"
-                                                objectFit="cover"
-                                                quality={100}
-                                            />
-
-                                        ) : CollectionImg[item.id]?.imageUrl.includes('.mp4') ? (
-                                            <video>
-                                                <source src={CollectionImg[item.id]?.imageUrl} type="video/mp4"></source>
-                                            </video>
-                                        ) : (
-                                            <img
-                                                className="rounded-t-xl"
-                                                src={CollectionImg[item.id]?.imageUrl}
+                                                className="rounded-t-xl bg-cover"
+                                                src="/img/loading.gif"
                                                 onError={handleImgError}
+                                                placeholder="Nft not found"
                                                 alt="cover image"
-                                                width="100%"
-                                                height="100px"
+                                                width={600}
+                                                height={450}
+                                                unoptimized={true}
+                                                loading="eager"
                                                 layout="responsive"
-                                                objectFit="cover"
-                                                quality={100}
                                             />
-                                        )}
-                                        {CollectionImg[item.id]?.imageLoad ? null: SearchImgURL(item.id)}
+                                        ) :
+                                            CollectionImg[item.id]?.imageUrl === '' ? (
+                                                <img
+                                                    className="rounded-t-lg bg-cover"
+                                                    src="/img/totalnft.png"
+                                                    onError={handleImgError}
+                                                    placeholder="Nft not found"
+                                                    alt="cover image"
+                                                    width={600}
+                                                    height={450}
+                                                    unoptimized={true}
+                                                    loading="eager"
+                                                    layout="responsive"
+                                                />
+
+                                            ) : CollectionImg[item.id]?.imageUrl.includes('.mp4') ? (
+                                                <video>
+                                                    <source src={CollectionImg[item.id]?.imageUrl} type="video/mp4"></source>
+                                                </video>
+                                            ) : (
+                                                <img
+                                                    className="rounded-t-lg bg-cover"
+                                                    src={CollectionImg[item.id]?.imageUrl}
+                                                    onError={handleImgError}
+                                                    placeholder="Nft not found"
+                                                    alt="cover image"
+                                                    width={600}
+                                                    height={450}
+                                                    unoptimized={true}
+                                                    loading="eager"
+                                                    layout="responsive"
+                                                />
+                                            )}
+                                        {CollectionImg[item.id]?.imageLoad ? null : SearchImgURL(item.id)}
 
                                         {/*{Price[item.id]?.priceLoad ? null: SearchPrice(item.id)}*/}
 
                                         <div className="p-4 flex flex-col">
                                             <h2 className="tracking-widest text-xs title-font font-medium text-gray-400 mb-1">No.{item.tokenIdInt}</h2>
                                             <h1 className="title-font text-lg font-medium text-gray-900 mb-3">NFT NAME</h1>
-                                            <p className="leading-relaxed mb-3 -align-left flex">Final price : <img class="pt-3 object-scale-down h-5" src="/img/token/klaytnToken.png" /> {Price[item.id]?.priceLoad ? Price[item.id]?.finalPrice: 'searching..'}</p>
+                                            <p className="leading-relaxed mb-3 -align-left flex">Final price : <img class="pt-3 object-scale-down h-5" src="/img/token/klaytnToken.png" /> {Price[item.id]?.priceLoad ? Price[item.id]?.finalPrice : 'searching..'}</p>
                                             <div className="flex items-center flex-wrap ">
                                                 <a className="text-indigo-500 inline-flex items-center md:mb-2 lg:mb-0" target="_blank" href={'https://scope.klaytn.com/nft/' + item.contractAddress + '/' + item.tokenIdInt}>View contract
                                                     <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
