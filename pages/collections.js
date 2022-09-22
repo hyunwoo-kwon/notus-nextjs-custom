@@ -193,15 +193,15 @@ export default function Collections(props) {
                             }} /> */}
                 </div>
             </section>
-            <section className="py-24 mx-auto mt-40 flex flex-wrap">
-                <div className="item-center justify-center mx-auto text-center" style={{ textAlign: 'center' }}>
-                    <strong className="flex sm:text-3xl text-2xl font-extrabold text-gray-900 w-full text-center" >
+            <section className="py-24 mx-auto mt-48 flex flex-wrap">
+                <div className="item-center justify-center mx-auto text-center">
+                    <strong className="flex sm:text-3xl text-2xl font-extrabold text-gray-900 w-full text-center " >
                         Your NFT collections
                     </strong>
                 </div>
 
 
-                <div className="grid md:grid-cols-5 sm:grid-cols-2 mx-auto mt-10" id="section1">
+                <div className="grid md:grid-cols-5 sm:grid-cols-2 mx-auto mt-3" id="section1">
                     {Collection?.map((item) => (
                         <div className="p-4" id={item.id}>
                             <div
