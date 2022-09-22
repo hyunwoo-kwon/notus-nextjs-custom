@@ -48,7 +48,6 @@ export default function Collections(props) {
 
     useEffect(() => {
         //이미지가 로딩중이면 이미지 서칭 시작
-        console.log("imgloading==true 로딩해야할 이미지 여부 확인 = CollectionImg.length : "+ CollectionImg.length + " , ImgLoadingNumber = " +ImgLoadingNumber)
         if(ImgLoading){
             SearchImgURL(ImgLoadingNumber);
             if(CollectionImg.length > ImgLoadingNumber+1){
@@ -64,7 +63,6 @@ export default function Collections(props) {
 
     useEffect(() => {
         //로딩 해야할 이미지 여부 확인
-        console.log("imgloading==false 로딩해야할 이미지 여부 확인 = CollectionImg.length : "+ CollectionImg.length + " , ImgLoadingNumber = " +ImgLoadingNumber)
         if(CollectionImg.length > ImgLoadingNumber){
             //이미지 로딩상태로 변경
             setImgLoading(true);
@@ -87,7 +85,6 @@ export default function Collections(props) {
         const scrollTop = document.documentElement.scrollTop;
         const clientHeight = document.documentElement.clientHeight;
 
-        // console.log("scrollTop + clientHeight >= scrollHeight-1 = " + (scrollTop + clientHeight >= scrollHeight-30) + "     CollectionFeching= " +CollectionFeching+"     !CollectionFeching = " + !CollectionFeching)
         if (scrollTop + clientHeight >= scrollHeight-1 && !CollectionFeching) {
             setCollectionFeching(true);
         }
@@ -129,15 +126,7 @@ export default function Collections(props) {
     }
 
     function SearchImgURL(index) {
-        console.log("-----------------------------------")
-        // console.log("tempImgUrlBox = " +JSON.stringify(tempImgUrlBox));
-        console.log("SearchImgURL index " + index)
-        // let tempCollectionImg = [...CollectionImg];
-        console.log("CollectionImg[index]?.imageLoad == false = " +CollectionImg[index]?.imageLoad )
         if (CollectionImg[index]?.imageLoad == false&& Collection.length>=CollectionImg.length) {
-            // tempCollectionImg[index].imageLoad = true;
-            // setCollectionImg(tempCollectionImg);
-
             axios.get('/hyperwebs/nftimageurl?uri=' + Collection[index].tokenUri)
                 .then(function (response) {
                     let data = response.data;
@@ -145,16 +134,6 @@ export default function Collections(props) {
                     tempImgUrlBox[index] = {id: 'img' + index, imageUrl: response.data.url, imageLoad: true};
 
                     setCollectionImg([...tempImgUrlBox])
-
-                    console.log("tempImgUrlBox = " +JSON.stringify(tempImgUrlBox));
-                    console.log("CollectionImg = " +JSON.stringify(CollectionImg));
-
-                    // let tempCollectionImg = [...CollectionImg];
-                    //
-                    // tempCollectionImg[index].imageUrl = data.url;
-                    // tempCollectionImg[index].imageLoad = true;
-                    //
-                    // setCollectionImg(tempCollectionImg);
                 })
 
         }
@@ -291,13 +270,7 @@ export default function Collections(props) {
                             </div>
                         ))}
                     </div>
-                    {/*{CollectionImg.map((c)=>(*/}
-                    {/*    <>*/}
-                    {/*        <br/><br/>*/}
-                    {/*        {JSON.stringify(c)}*/}
-                    {/*    </>*/}
 
-                    {/*))}*/}
                     <div className="py-24 mx-auto">
                         <div className="grid md:grid-cols-5 sm:grid-cols-2 mx-auto ">
                             {Collection?.map((item) => (
@@ -305,9 +278,6 @@ export default function Collections(props) {
                                     <div
                                         className="h-full border-2 border-gray-200 border-opacity-60 rounded-lg bg-cover cursor-pointer
                                                     overflow-hidden transition duration-300 transform hover:shadow-lg hover:scale-105">
-                                        {/*{JSON.stringify(CollectionImg[item.id]?.imageLoad)}*/}
-                                        {/*<br/>*/}
-                                        {/*{JSON.stringify(CollectionImg[item.id]?.imageUrl)}*/}
                                         <div id={'img'+item.id}>
                                             {CollectionImg[item.id]?.imageLoad == false ? (
                                                     <img
@@ -356,9 +326,6 @@ export default function Collections(props) {
                                                     />
                                                 )}
                                         </div>
-                                        {/*{CollectionImg[item.id]?.imageLoad ? null : SearchImgURL(item.id)}*/}
-
-                                        {/*{Price[item.id]?.priceLoad ? null: SearchPrice(item.id)}*/}
 
                                         <div className="p-4 flex flex-col">
                                             <h2 className="tracking-widest text-xs title-font font-medium text-gray-400 mb-1">No.{item.tokenIdInt}</h2>
@@ -391,8 +358,6 @@ export default function Collections(props) {
                     </div>
                 </section>
             </main>
-            <br /><br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br /><br />
             <br /><br /><br /><br /><br /><br />
         </>
     );
