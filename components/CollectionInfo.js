@@ -141,7 +141,6 @@ export default function CollectionInfo(props) {
                                             let copy = [...searchedAddress]
                                             copy.splice(key, 1)
                                             setSearchedAddress(copy)
-
                                             // setCollection();
                                         }} />
                                     </div>
@@ -150,6 +149,7 @@ export default function CollectionInfo(props) {
                         </div>
                     </div>
                 </div>
+                <div className="h-1 bg-blue-100 shadow-md"></div>
             </div>
         </>
     );
