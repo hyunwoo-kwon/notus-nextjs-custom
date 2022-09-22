@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import Image from "next/image";
 import { AiFillCloseCircle } from "react-icons/ai"
 
 // components
@@ -8,6 +7,9 @@ import { SearchAddressParam } from "../form/SearchAddressParam";
 import axios from "axios";
 import PageLoader from "next/dist/client/page-loader";
 import { Link } from "react-scroll";
+import Image from "next/image";
+
+let tempImgUrlBox = [];
 
 export default function Collections(props) {
     const router = useRouter();
@@ -16,62 +18,143 @@ export default function Collections(props) {
     const [Collection, setCollection] = useState([]);
     const [CollectionImg, setCollectionImg] = useState([]);
     const [Price, setPrice] = useState([]);
-    const [Loading, setLoading] = useState(false);
+    const [PageParam, setPageParam] = useState(0);
+    const [CollectionFeching, setCollectionFeching] = useState(false);
+    const [ImgLoadingNumber, setImgLoadingNumber] = useState(0);
+    const [ImgLoading, setImgLoading] = useState(false);
+
     const handleImgError = (e) => {
         e.target.src = "/img/default-item.png";
     }
 
-    const addressList = SearchAddress.map((address) => <li key={address.id}>{address.id}</li>);
-    const SearchCollection = () => {
-        setLoading(true);
-        let param;
-        SearchAddress.forEach((item, index) => {
-            if (index > 0) {
-                param.addAddress("kip17", item.id);
-            } else {
-                param = new SearchAddressParam("kip17", item.id);
-            }
-        })
+    //컬렉션 조회 후 파라메터 세팅
+    useEffect(() => {
+        setPageParam(PageParam+1);
+        setCollectionFeching(false);
+    },[Collection.length>0
+            &&CollectionFeching==true]);
 
-        setCollection([]);
-        axios.post('/hyperwebs/nftlistowner', param.value)
+    //초기 1번만 실행(조회)
+    useEffect(() => {
+        tempImgUrlBox = [];
+        setCollectionFeching(true);
+    },[]);
+
+    //CollectionFeching 추가조회가 시작(true)되면 실행
+    useEffect(() => {
+        SearchCollection();
+    },[CollectionFeching==true]);
+
+
+    useEffect(() => {
+        //이미지가 로딩중이면 이미지 서칭 시작
+        console.log("imgloading==true 로딩해야할 이미지 여부 확인 = CollectionImg.length : "+ CollectionImg.length + " , ImgLoadingNumber = " +ImgLoadingNumber)
+        if(ImgLoading){
+            SearchImgURL(ImgLoadingNumber);
+            if(CollectionImg.length > ImgLoadingNumber+1){
+                //추가 로딩할 이미지가 있으면 계속 진행
+            }else{
+                //추가 로딩할 이미지가 없으면
+                setImgLoading(false);
+            }
+            setImgLoadingNumber(ImgLoadingNumber+1);
+        }
+
+    },[ImgLoading===true, ImgLoadingNumber]);
+
+    useEffect(() => {
+        //로딩 해야할 이미지 여부 확인
+        console.log("imgloading==false 로딩해야할 이미지 여부 확인 = CollectionImg.length : "+ CollectionImg.length + " , ImgLoadingNumber = " +ImgLoadingNumber)
+        if(CollectionImg.length > ImgLoadingNumber){
+            //이미지 로딩상태로 변경
+            setImgLoading(true);
+        }
+    },[ImgLoading===false, Collection, CollectionImg]);
+
+    //스크롤 상태 조회
+    useEffect(() => {
+
+        window.addEventListener("scroll", handleScroll);
+        return () => {
+            // scroll event listener 해제
+            window.removeEventListener("scroll", handleScroll);
+        };
+    });
+
+    // 스크롤 이벤트 핸들러
+    const handleScroll = () => {
+        const scrollHeight = document.documentElement.scrollHeight;
+        const scrollTop = document.documentElement.scrollTop;
+        const clientHeight = document.documentElement.clientHeight;
+
+        // console.log("scrollTop + clientHeight >= scrollHeight-1 = " + (scrollTop + clientHeight >= scrollHeight-30) + "     CollectionFeching= " +CollectionFeching+"     !CollectionFeching = " + !CollectionFeching)
+        if (scrollTop + clientHeight >= scrollHeight-1 && !CollectionFeching) {
+            setCollectionFeching(true);
+        }
+    };
+
+    //컬렉션 데이터 조회 함수
+    const SearchCollection = () => {
+        const startIndex = (PageParam*5);
+        axios.get(`/hyperwebs/nftlistowner?workUUID=${WorkUUID}&page=${PageParam}`)
             .then(function (response) {
-                let data = response.data;
+                var data = response.data;
+                let tempCollection=[];
+                let tempCollectionImg=[];
+                let tempPrice=[];
 
                 data.forEach((d, index) => {
-                    setCollection(collection => [...collection, {
-                        id: index, type: 'kip17', address: d.address, contractAddress: d.contractAddress, tokenId: d.tokenId, tokenIdInt: d.tokenIdInt
+                    tempCollection.push({
+                        id: startIndex+index, type: 'kip17', address: d.address, contractAddress: d.contractAddress, tokenId: d.tokenId, tokenIdInt: d.tokenIdInt
                         , tokenUri: d.tokenUri, finalPrice: d.finalPrice
-                    }])
-                    setCollectionImg(img => [...img, {
-                        id: 'img' + index, imageUrl: '', imageLoad: false
-                    }])
-                    setPrice(price => [...price, {
-                        id: 'final' + index, finalPrice: '', floorPrice: '', priceLoad: false
-                    }])
+                    })
+                    tempCollectionImg.push({
+                        id: 'img' + (startIndex+index), imageUrl: '', imageLoad: false
+                    })
+                    tempPrice.push({
+                        id: 'final' + (startIndex+index), finalPrice: '', floorPrice: '', priceLoad: false
+                    })
+
+                    tempImgUrlBox.push({id: 'img' + (startIndex+index), imageUrl: '', imageLoad: false})
+                    console.log("insert tempImgUrlBox = " + JSON.stringify(tempImgUrlBox))
+
                 })
 
-                setLoading(false);
+                setCollectionImg(collectionImg => [...collectionImg, ...tempCollectionImg]);
+                setPrice(price => [...price, ...tempPrice]);
+                setCollection(collection => [...collection, ...tempCollection]);
+
+                console.log("axios CollectionFeching data = " + CollectionFeching)
             })
     }
 
     function SearchImgURL(index) {
-        let tempCollectionImg = [...CollectionImg];
-
-        if (tempCollectionImg[index]?.imageLoad == false) {
-
-            tempCollectionImg[index].imageLoad = true;
-            setCollectionImg(tempCollectionImg);
+        console.log("-----------------------------------")
+        // console.log("tempImgUrlBox = " +JSON.stringify(tempImgUrlBox));
+        console.log("SearchImgURL index " + index)
+        // let tempCollectionImg = [...CollectionImg];
+        console.log("CollectionImg[index]?.imageLoad == false = " +CollectionImg[index]?.imageLoad )
+        if (CollectionImg[index]?.imageLoad == false&& Collection.length>=CollectionImg.length) {
+            // tempCollectionImg[index].imageLoad = true;
+            // setCollectionImg(tempCollectionImg);
 
             axios.get('/hyperwebs/nftimageurl?uri=' + Collection[index].tokenUri)
                 .then(function (response) {
                     let data = response.data;
-                    let tempCollectionImg = [...CollectionImg];
 
-                    tempCollectionImg[index].imageUrl = data.url;
-                    tempCollectionImg[index].imageLoad = true;
+                    tempImgUrlBox[index] = {id: 'img' + index, imageUrl: response.data.url, imageLoad: true};
 
-                    setCollectionImg(tempCollectionImg);
+                    setCollectionImg([...tempImgUrlBox])
+
+                    console.log("tempImgUrlBox = " +JSON.stringify(tempImgUrlBox));
+                    console.log("CollectionImg = " +JSON.stringify(CollectionImg));
+
+                    // let tempCollectionImg = [...CollectionImg];
+                    //
+                    // tempCollectionImg[index].imageUrl = data.url;
+                    // tempCollectionImg[index].imageLoad = true;
+                    //
+                    // setCollectionImg(tempCollectionImg);
                 })
 
         }
@@ -99,26 +182,11 @@ export default function Collections(props) {
         }
     }
 
-    useEffect(() => {
-        SearchCollection();
-    }, []);
 
     return (
         <>
-            <br />
-            <br />
-            <br />
-            <br />
+            <br /><br /><br /><br /><br /><br /><br /><br />
             <main>
-                {Loading ? (
-                    <div>
-                        <div className="mb-4 flex flex-col items-center justify-center min-h-screen">
-                            <i className="fas fa-circle-notch animate-spin text-gray-500 mr-10 text-6xl"></i>
-                            <h1 className="mr-6 mt-3">Searching...</h1>
-                        </div>
-                    </div>
-
-                ) : null}
                 <section className="text-gray-400 body-font relative">
                     <div className="fixed z-10 right-10 bottom-10 w-20 h-20">
 
@@ -136,94 +204,100 @@ export default function Collections(props) {
                             </svg>
                         </Link>
                     </div>
-                    {Loading ? null : (
-                        <div className="container px-5 mx-auto relative" id="section1">
-                            <div className="flex flex-col text-center w-full mb-20 relative">
-                                <h1 className="sm:text-3xl text-2xl font-extrabold title-font mb-4 text-gray-900">
-                                    Your  NFT collections
-                                </h1>
-                            </div>
-                            <div className="flex flex-wrap -m-4 text-center">
-                                <div className="p-4 md:w-1/3 sm:w-1/2 w-full">
-                                    <div className="border-2 border-gray-200 px-4 py-6 rounded-lg">
-                                        <svg
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth="2"
-                                            className={`text-lightBlue-600 w-12 h-12 mb-3 inline-block`}
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-                                            <circle cx="9" cy="7" r="4" />
-                                            <path d="M23 21v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75" />
-                                        </svg>
-                                        <h2 className="title-font font-medium text-3xl text-gray-900">
-                                            {SearchAddress.length}
-                                        </h2>
-                                        <p className="leading-relaxed">Account</p>
-                                    </div>
-                                </div>
-                                <div className="p-4 md:w-1/3 sm:w-1/2 w-full">
-                                    <div className="border-2 border-gray-200 px-4 py-6 rounded-lg">
-                                        <svg
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth="2"
-                                            className={`text-lightBlue-600  w-12 h-12 mb-3 inline-block`}
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path d="M3 18v-6a9 9 0 0118 0v6" />
-                                            <path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z" />
-                                        </svg>
-                                        <h2 className="title-font font-medium text-3xl text-gray-900">
-                                            {Collection.length}
-                                        </h2>
-                                        <p className="leading-relaxed">Collections</p>
-                                    </div>
-                                </div>
-                                <div className="p-4 md:w-1/3 sm:w-1/2 w-full">
-                                    <div className="border-2 border-gray-200 px-4 py-6 rounded-lg">
-                                        <svg
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth="2"
-                                            className={`text-lightBlue-600 w-12 h-12 mb-3 inline-block`}
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path d="M3 18v-6a9 9 0 0118 0v6" />
-                                            <path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z" />
-                                        </svg>
-                                        <h2 className="title-font font-medium text-3xl text-gray-900">
-                                            74
-                                        </h2>
-                                        <p className="leading-relaxed">Volume</p>
-                                    </div>
-                                </div>
-                            </div>
-                            {SearchAddress.map((item, key) => (
-                                <div className="flex text-sm mb-4" key={item.id}>
-                                    <div className="bg-gray-100 rounded-full items-center hover:bg-gray-300 focus:outline-none border border-slate-300 shadow-md p-2">
-                                        <span className="font-bold ml-1"> Address</span> : {item.id}
-                                        <span className="ml-3 text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-lightBlue-600 bg-lightBlue-200">
-                                            {item.countCollection} {item.countCollection > 1 ? 'Collections' : 'Collection'}
-                                        </span>
-                                    </div>
-                                    <AiFillCloseCircle className="text-2xl justify-center cursor-pointer" onClick={() => {
-                                        let copy = [...SearchAddress]
-                                        copy.splice(key, 1)
-                                        setSearchAddress(copy);
-                                        // setCollection();
-                                    }} />
-                                </div>
-                            ))}
+
+                    <div className="container px-5 mx-auto relative" id="section1">
+                        <div className="flex flex-col text-center w-full mb-20 relative">
+                            <h1 className="sm:text-3xl text-2xl font-extrabold title-font mb-4 text-gray-900">
+                                Your  NFT collections
+                            </h1>
                         </div>
-                    )}
+                        <div className="flex flex-wrap -m-4 text-center">
+                            <div className="p-4 md:w-1/3 sm:w-1/2 w-full">
+                                <div className="border-2 border-gray-200 px-4 py-6 rounded-lg">
+                                    <svg
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        className={`text-lightBlue-600 w-12 h-12 mb-3 inline-block`}
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                                        <circle cx="9" cy="7" r="4" />
+                                        <path d="M23 21v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75" />
+                                    </svg>
+                                    <h2 className="title-font font-medium text-3xl text-gray-900">
+                                        {SearchAddress.length}
+                                    </h2>
+                                    <p className="leading-relaxed">Account</p>
+                                </div>
+                            </div>
+                            <div className="p-4 md:w-1/3 sm:w-1/2 w-full">
+                                <div className="border-2 border-gray-200 px-4 py-6 rounded-lg">
+                                    <svg
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        className={`text-lightBlue-600  w-12 h-12 mb-3 inline-block`}
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path d="M3 18v-6a9 9 0 0118 0v6" />
+                                        <path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z" />
+                                    </svg>
+                                    <h2 className="title-font font-medium text-3xl text-gray-900">
+                                        {Collection.length}
+                                    </h2>
+                                    <p className="leading-relaxed">Collections</p>
+                                </div>
+                            </div>
+                            <div className="p-4 md:w-1/3 sm:w-1/2 w-full">
+                                <div className="border-2 border-gray-200 px-4 py-6 rounded-lg">
+                                    <svg
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        className={`text-lightBlue-600 w-12 h-12 mb-3 inline-block`}
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path d="M3 18v-6a9 9 0 0118 0v6" />
+                                        <path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z" />
+                                    </svg>
+                                    <h2 className="title-font font-medium text-3xl text-gray-900">
+                                        74
+                                    </h2>
+                                    <p className="leading-relaxed">Volume</p>
+                                </div>
+                            </div>
+                        </div>
+                        {SearchAddress.map((item, key) => (
+                            <div className="flex text-sm mb-4" key={item.id}>
+                                <div className="bg-gray-100 rounded-full items-center hover:bg-gray-300 focus:outline-none border border-slate-300 shadow-md p-2">
+                                    <span className="font-bold ml-1"> Address</span> : {item.id}
+                                    <span className="ml-3 text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-lightBlue-600 bg-lightBlue-200">
+                                        {item.countCollection} {item.countCollection > 1 ? 'Collections' : 'Collection'}
+                                    </span>
+                                </div>
+                                <AiFillCloseCircle className="text-2xl justify-center cursor-pointer" onClick={() => {
+                                    let copy = [...SearchAddress]
+                                    copy.splice(key, 1)
+                                    setSearchAddress(copy);
+                                    // setCollection();
+                                }} />
+                            </div>
+                        ))}
+                    </div>
+                    {/*{CollectionImg.map((c)=>(*/}
+                    {/*    <>*/}
+                    {/*        <br/><br/>*/}
+                    {/*        {JSON.stringify(c)}*/}
+                    {/*    </>*/}
+
+                    {/*))}*/}
                     <div className="py-24 mx-auto">
                         <div className="grid md:grid-cols-5 sm:grid-cols-2 mx-auto ">
                             {Collection?.map((item) => (
@@ -231,53 +305,58 @@ export default function Collections(props) {
                                     <div
                                         className="h-full border-2 border-gray-200 border-opacity-60 rounded-lg bg-cover cursor-pointer
                                                     overflow-hidden transition duration-300 transform hover:shadow-lg hover:scale-105">
-                                        {CollectionImg[item.id]?.imageLoad == false ? (
-                                            <img
-                                                className="rounded-t-xl bg-cover"
-                                                src="/img/loading.gif"
-                                                onError={handleImgError}
-                                                placeholder="Nft not found"
-                                                alt="cover image"
-                                                width={600}
-                                                height={450}
-                                                unoptimized={true}
-                                                loading="eager"
-                                                layout="responsive"
-                                            />
-                                        ) :
-                                            CollectionImg[item.id]?.imageUrl === '' ? (
-                                                <img
-                                                    className="rounded-t-lg bg-cover"
-                                                    src="/img/totalnft.png"
-                                                    onError={handleImgError}
-                                                    placeholder="Nft not found"
-                                                    alt="cover image"
-                                                    width={600}
-                                                    height={450}
-                                                    unoptimized={true}
-                                                    loading="eager"
-                                                    layout="responsive"
-                                                />
+                                        {/*{JSON.stringify(CollectionImg[item.id]?.imageLoad)}*/}
+                                        {/*<br/>*/}
+                                        {/*{JSON.stringify(CollectionImg[item.id]?.imageUrl)}*/}
+                                        <div id={'img'+item.id}>
+                                            {CollectionImg[item.id]?.imageLoad == false ? (
+                                                    <img
+                                                        className="rounded-t-xl bg-cover"
+                                                        src="/img/loading.gif"
+                                                        onError={handleImgError}
+                                                        placeholder="Nft not found"
+                                                        alt="cover image"
+                                                        width={600}
+                                                        height={450}
+                                                        unoptimized={true}
+                                                        loading="eager"
+                                                        layout="responsive"
+                                                    />
+                                                ) :
+                                                CollectionImg[item.id]?.imageUrl === '' ? (
+                                                    <img
+                                                        className="rounded-t-lg bg-cover"
+                                                        src="/img/totalnft.png"
+                                                        onError={handleImgError}
+                                                        placeholder="Nft not found"
+                                                        alt="cover image"
+                                                        width={600}
+                                                        height={450}
+                                                        unoptimized={true}
+                                                        loading="eager"
+                                                        layout="responsive"
+                                                    />
 
-                                            ) : CollectionImg[item.id]?.imageUrl.includes('.mp4') ? (
-                                                <video>
-                                                    <source src={CollectionImg[item.id]?.imageUrl} type="video/mp4"></source>
-                                                </video>
-                                            ) : (
-                                                <img
-                                                    className="rounded-t-lg bg-cover"
-                                                    src={CollectionImg[item.id]?.imageUrl}
-                                                    onError={handleImgError}
-                                                    placeholder="Nft not found"
-                                                    alt="cover image"
-                                                    width={600}
-                                                    height={450}
-                                                    unoptimized={true}
-                                                    loading="eager"
-                                                    layout="responsive"
-                                                />
-                                            )}
-                                        {CollectionImg[item.id]?.imageLoad ? null : SearchImgURL(item.id)}
+                                                ) : CollectionImg[item.id]?.imageUrl.includes('.mp4') ? (
+                                                    <video>
+                                                        <source src={CollectionImg[item.id]?.imageUrl} type="video/mp4"></source>
+                                                    </video>
+                                                ) : (
+                                                    <img
+                                                        className="rounded-t-lg bg-cover"
+                                                        src={CollectionImg[item.id]?.imageUrl}
+                                                        onError={handleImgError}
+                                                        placeholder="Nft not found"
+                                                        alt="cover image"
+                                                        width={600}
+                                                        height={450}
+                                                        unoptimized={true}
+                                                        loading="eager"
+                                                        layout="responsive"
+                                                    />
+                                                )}
+                                        </div>
+                                        {/*{CollectionImg[item.id]?.imageLoad ? null : SearchImgURL(item.id)}*/}
 
                                         {/*{Price[item.id]?.priceLoad ? null: SearchPrice(item.id)}*/}
 
@@ -312,9 +391,9 @@ export default function Collections(props) {
                     </div>
                 </section>
             </main>
-            <br />
-            <br />
-            <br />
+            <br /><br /><br /><br /><br /><br />
+            <br /><br /><br /><br /><br /><br />
+            <br /><br /><br /><br /><br /><br />
         </>
     );
 }
