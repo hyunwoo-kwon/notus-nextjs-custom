@@ -131,19 +131,20 @@ export default function CollectionInfo(props) {
                         <div className="bg-gray-300 p-4 overflow-y-scroll h-32">
                             {searchedAddress.map((item, key) => (
                                 <div className="flex text-sm mb-1 content-center align-middle" key={item.id}>
-                                    <div className="bg-gray-100 rounded-lg items-center focus:outline-none border border-slate-300 shadow-md p-2 ml-2">
-                                        <span className="font-bold text-sm ml-1"> Address</span> : <p className="text-xs overflow-hidden">{item.id}</p>
+                                    <div className="bg-gray-100 rounded-lg items-center focus:outline-none border border-slate-300 shadow-md p-2 w-80 flex flex-wrap">
+                                        <p className="text-xs overflow-hidden">{item.id}</p>
                                         <span className="ml-3 text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-lightBlue-600 bg-sky-200">
                                             {item.countCollection} {item.countCollection > 1 ? 'Collections' : 'Collection'}
                                         </span>
-                                    </div>
-                                    <AiFillCloseCircle className="text-2xl justify-center cursor-pointer z-15" onClick={() => {
-                                        let copy = [...searchedAddress]
-                                        copy.splice(key, 1)
-                                        setSearchedAddress(copy)
 
-                                        // setCollection();
-                                    }} />
+                                        <AiFillCloseCircle className="text-2xl ml-auto justify-end cursor-pointer z-15 " onClick={() => {
+                                            let copy = [...searchedAddress]
+                                            copy.splice(key, 1)
+                                            setSearchedAddress(copy)
+
+                                            // setCollection();
+                                        }} />
+                                    </div>
                                 </div>
                             ))}
                         </div>
