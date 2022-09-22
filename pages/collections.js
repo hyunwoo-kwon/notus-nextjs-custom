@@ -10,18 +10,22 @@ import { Link } from "react-scroll";
 import Image from "next/image";
 
 let tempImgUrlBox = [];
+let tempPriceBox  = [];
 
 export default function Collections(props) {
     const router = useRouter();
-    const [SearchAddress, setSearchAddress] = useState(JSON.parse(router.query.SearchAddress));
-    const [WorkUUID, setWorkUUID] = useState(JSON.parse(router.query.WorkUUID));
-    const [Collection, setCollection] = useState([]);
-    const [CollectionImg, setCollectionImg] = useState([]);
-    const [Price, setPrice] = useState([]);
-    const [PageParam, setPageParam] = useState(0);
-    const [CollectionFeching, setCollectionFeching] = useState(false);
-    const [ImgLoadingNumber, setImgLoadingNumber] = useState(0);
-    const [ImgLoading, setImgLoading] = useState(false);
+    const [SearchAddress    , setSearchAddress      ] = useState(JSON.parse(router.query.SearchAddress));
+    const [WorkUUID         , setWorkUUID           ] = useState(JSON.parse(router.query.WorkUUID));
+    const [Collection       , setCollection         ] = useState([]);
+    const [CollectionImg    , setCollectionImg      ] = useState([]);
+    const [Price            , setPrice              ] = useState([]);
+    const [PageParam        , setPageParam          ] = useState(0);
+    const [CollectionFeching, setCollectionFeching  ] = useState(false);
+    const [ImgLoadingNumber , setImgLoadingNumber   ] = useState(0);
+    const [ImgLoading       , setImgLoading         ] = useState(false);
+
+    const [PriceLoading     , setPriceLoading       ] = useState(false);
+    const [PriceLoadingNumber, setPriceLoadingNumber] = useState(0);
 
     const handleImgError = (e) => {
         e.target.src = "/img/default-item.png";
@@ -45,7 +49,6 @@ export default function Collections(props) {
         SearchCollection();
     },[CollectionFeching==true]);
 
-
     useEffect(() => {
         //이미지가 로딩중이면 이미지 서칭 시작
         if(ImgLoading){
@@ -53,13 +56,12 @@ export default function Collections(props) {
             if(CollectionImg.length > ImgLoadingNumber+1){
                 //추가 로딩할 이미지가 있으면 계속 진행
             }else{
-                //추가 로딩할 이미지가 없으면
+                //추가 로딩할 이미지가 없으면 종료
                 setImgLoading(false);
             }
-            setImgLoadingNumber(ImgLoadingNumber+1);
         }
 
-    },[ImgLoading===true, ImgLoadingNumber]);
+    },[ImgLoading===true, Collection, CollectionImg]);
 
     useEffect(() => {
         //로딩 해야할 이미지 여부 확인
@@ -68,6 +70,30 @@ export default function Collections(props) {
             setImgLoading(true);
         }
     },[ImgLoading===false, Collection, CollectionImg]);
+    //
+    // //가격정보
+    // useEffect(() => {
+    //     //가격정보가 로딩중이면 이미지 서칭 시작
+    //     if(PriceLoading){
+    //         SearchPrice(PriceLoadingNumber);
+    //         if(CollectionImg.length > PriceLoadingNumber+1){
+    //             //추가 로딩할 가격정보가 있으면 계속 진행
+    //         }else{
+    //             //추가 로딩할 가격정보가 없으면 종료
+    //             setPriceLoading(false);
+    //         }
+    //         setPriceLoadingNumber(PriceLoadingNumber+1);
+    //     }
+    // },[PriceLoading===true, PriceLoadingNumber]);
+    //
+    // //가격정보
+    // useEffect(() => {
+    //     //로딩 해야할 가격정보 확인
+    //     if(Price.length > PriceLoadingNumber){
+    //         //가격정보 로딩상태로 변경
+    //         setPriceLoading(true);
+    //     }
+    // },[PriceLoading===false, Collection, Price]);
 
     //스크롤 상태 조회
     useEffect(() => {
@@ -109,56 +135,55 @@ export default function Collections(props) {
                         id: 'img' + (startIndex+index), imageUrl: '', imageLoad: false
                     })
                     tempPrice.push({
-                        id: 'final' + (startIndex+index), finalPrice: '', floorPrice: '', priceLoad: false
+                        id: 'price' + (startIndex+index), finalPrice: '', floorPrice: '', priceLoad: false
                     })
 
                     tempImgUrlBox.push({id: 'img' + (startIndex+index), imageUrl: '', imageLoad: false})
-                    console.log("insert tempImgUrlBox = " + JSON.stringify(tempImgUrlBox))
+
+                    tempPriceBox.push({id: 'price' + (startIndex+index), finalPrice: '', floorPrice: '', priceLoad: false})
 
                 })
 
                 setCollectionImg(collectionImg => [...collectionImg, ...tempCollectionImg]);
                 setPrice(price => [...price, ...tempPrice]);
                 setCollection(collection => [...collection, ...tempCollection]);
-
-                console.log("axios CollectionFeching data = " + CollectionFeching)
             })
     }
 
     function SearchImgURL(index) {
         if (CollectionImg[index]?.imageLoad == false&& Collection.length>=CollectionImg.length) {
-            axios.get('/hyperwebs/nftimageurl?uri=' + Collection[index].tokenUri)
-                .then(function (response) {
-                    let data = response.data;
+            setImgLoadingNumber(index+1);
+            if(Collection[index]?.tokenUri === ""){
+                tempImgUrlBox[index] = {id: 'img' + index, imageUrl: "", imageLoad: true};
 
-                    tempImgUrlBox[index] = {id: 'img' + index, imageUrl: response.data.url, imageLoad: true};
+                setCollectionImg([...tempImgUrlBox])
+            }else{
+                axios.get('/hyperwebs/nftimageurl?uri=' + Collection[index].tokenUri)
+                    .then(function (response) {
+                        let data = response.data;
+                        tempImgUrlBox[index] = {id: 'img' + index, imageUrl: response.data.url, imageLoad: true};
 
-                    setCollectionImg([...tempImgUrlBox])
-                })
+                        setCollectionImg([...tempImgUrlBox])
+                    })
+                    .catch(function (error){
+                        tempImgUrlBox[index] = {id: 'img' + index, imageUrl: "", imageLoad: true};
 
+                        setCollectionImg([...tempImgUrlBox]);
+                    })
+
+            }
         }
     }
 
     function SearchPrice(index) {
-        let tempPrice = [...Price];
+        axios.get('/hyperwebs/nftsingleprice?workUUID=' + WorkUUID + '&type=' + Collection[index].type + '&contractAddress=' + Collection[index].contractAddress + '&tokenId=' + Collection[index].tokenId)
+            .then(function (response) {
+                let data = response.data;
 
-        if (tempPrice[index]?.priceLoad == false) {
+                tempPriceBox[index] = {id: 'price' + (index), finalPrice: data.finalPrice, floorPrice: data.floorPrice , priceLoad: true}
 
-            tempPrice[index].priceLoad = true;
-            setPrice(tempPrice);
-
-            axios.get('/hyperwebs/nftsingleprice?workUUID=' + WorkUUID + '&type=' + Collection[index].type + '&contractAddress=' + Collection[index].contractAddress + '&tokenId=' + Collection[index].tokenId)
-                .then(function (response) {
-                    let data = response.data;
-                    let tempPrice = [...Price];
-
-                    tempPrice[index].finalPrice = data.finalPrice;
-                    tempPrice[index].floorPrice = data.floorPrice;
-
-                    setPrice(tempPrice);
-                })
-
-        }
+                setPrice([...tempPriceBox]);
+            })
     }
 
 
@@ -330,7 +355,11 @@ export default function Collections(props) {
                                         <div className="p-4 flex flex-col">
                                             <h2 className="tracking-widest text-xs title-font font-medium text-gray-400 mb-1">No.{item.tokenIdInt}</h2>
                                             <h1 className="title-font text-lg font-medium text-gray-900 mb-3">NFT NAME</h1>
-                                            <p className="leading-relaxed mb-3 -align-left flex">Final price : <img class="pt-3 object-scale-down h-5" src="/img/token/klaytnToken.png" /> {Price[item.id]?.priceLoad ? Price[item.id]?.finalPrice : 'searching..'}</p>
+                                            <p className="leading-relaxed mb-3 -align-left flex">Final price : <img className="pt-3 object-scale-down h-5" src="/img/token/klaytnToken.png" />
+                                                <span className="text-lightBlue-600">
+                                                    {Price[item.id]?.priceLoad ? Price[item.id]?.finalPrice : 'searching..'}
+                                                </span>
+                                            </p>
                                             <div className="flex items-center flex-wrap ">
                                                 <a className="text-indigo-500 inline-flex items-center md:mb-2 lg:mb-0" target="_blank" href={'https://scope.klaytn.com/nft/' + item.contractAddress + '/' + item.tokenIdInt}>View contract
                                                     <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
