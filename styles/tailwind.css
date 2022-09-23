@@ -4715,6 +4715,10 @@ select {
   transform: scale(1.05);
 }
 
+.hover\:scale-110:hover {
+  transform: scale(1.1);
+}
+
 .hover\:cursor-pointer:hover {
   cursor: pointer;
 }
