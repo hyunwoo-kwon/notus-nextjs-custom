@@ -1908,6 +1908,11 @@ select {
   background-color: rgba(255, 255, 255, var(--tw-bg-opacity));
 }
 
+.focus\:bg-gray-100:focus {
+  --tw-bg-opacity: 1;
+  background-color: rgb(243 244 246, var(--tw-bg-opacity));
+}
+
 .focus\:bg-gray-200:focus {
   --tw-bg-opacity: 1;
   background-color: rgba(228, 228, 231, var(--tw-bg-opacity));
@@ -2035,6 +2040,11 @@ select {
   border-color: rgba(165, 180, 252, var(--tw-border-opacity));
 }
 
+.focus\:border-gray-100:focus {
+  --tw-border-opacity: 1;
+  border-color: rgba(241, 245, 249, var(--tw-border-opacity));
+}
+
 .focus\:border-gray-300:focus {
   --tw-border-opacity: 1;
   border-color: rgba(212, 212, 216, var(--tw-border-opacity));
@@ -2043,6 +2053,10 @@ select {
 .focus\:border-gray-500:focus {
   --tw-border-opacity: 1;
   border-color: rgba(113, 113, 122, var(--tw-border-opacity));
+}
+
+.focus\:border-b-2:focus {
+  border-bottom-width: 2px;
 }
 
 .rounded {
