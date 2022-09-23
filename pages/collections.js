@@ -11,12 +11,13 @@ import Image from "next/image";
 import CollectionInfo from "components/CollectionInfo";
 
 let tempImgUrlBox = [];
-let tempPriceBox = [];
+let tempPriceBox  = [];
 
 export default function Collections(props) {
     const router = useRouter();
-    const [SearchAddress, setSearchAddress] = useState(JSON.parse(router.query.SearchAddress));
-    const [WorkUUID, setWorkUUID] = useState(JSON.parse(router.query.WorkUUID));
+    const [SearchAddress    , setSearchAddress      ] = useState(JSON.parse(router.query.SearchAddress));
+    const [WorkUUID         , setWorkUUID           ] = useState(JSON.parse(router.query.WorkUUID));
+    const [CountCollection  , setCountCollection    ] = useState(JSON.parse(router.query.CountCollection));
     const [Collection, setCollection] = useState([]);
     const [CollectionImg, setCollectionImg] = useState([]);
     const [Price, setPrice] = useState([]);
@@ -28,13 +29,11 @@ export default function Collections(props) {
     const [PriceLoading, setPriceLoading] = useState(false);
     const [PriceLoadingNumber, setPriceLoadingNumber] = useState(0);
 
-    // const handleImgError = (e) => {
-    //     e.target.src = "/img/default-item.png";
-    // }
-
     //컬렉션 조회 후 파라메터 세팅
     useEffect(() => {
-        setPageParam(PageParam + 1);
+        console.log("useEffect = 컬렉션 조회 후 파라메터 세팅")
+        console.log("Collection.length>0 : " +Collection.length +" CollectionFeching==true : "+CollectionFeching )
+        setPageParam(PageParam+1);
         setCollectionFeching(false);
     }, [Collection.length > 0
         && CollectionFeching == true]);
@@ -104,7 +103,7 @@ export default function Collections(props) {
             // scroll event listener 해제
             window.removeEventListener("scroll", handleScroll);
         };
-    });
+    },[]);
 
     // 스크롤 이벤트 핸들러
     const handleScroll = () => {
@@ -123,13 +122,13 @@ export default function Collections(props) {
         axios.get(`/hyperwebs/nftlistowner?workUUID=${WorkUUID}&page=${PageParam}`)
             .then(function (response) {
                 var data = response.data;
-                let tempCollection = [];
-                let tempCollectionImg = [];
-                let tempPrice = [];
-
+                let tempCollection=[];
+                let tempCollectionImg=[];
+                let tempPrice=[];
+                console.log(JSON.stringify(data))
                 data.forEach((d, index) => {
                     tempCollection.push({
-                        id: startIndex + index, type: 'kip17', address: d.address, contractAddress: d.contractAddress, tokenId: d.tokenId, tokenIdInt: d.tokenIdInt
+                        id: startIndex+index, type: 'kip17', address: d.address, projectName: d.projectName, contractAddress: d.contractAddress, tokenId: d.tokenId, tokenIdInt: d.tokenIdInt
                         , tokenUri: d.tokenUri, finalPrice: d.finalPrice
                     })
                     tempCollectionImg.push({
@@ -154,22 +153,22 @@ export default function Collections(props) {
     }
 
     function SearchImgURL(index) {
-        if (CollectionImg[index]?.imageLoad == false && Collection.length >= CollectionImg.length) {
-            setImgLoadingNumber(index + 1);
-            if (Collection[index]?.tokenUri === "") {
-                tempImgUrlBox[index] = { id: 'img' + index, imageUrl: "", imageLoad: true };
+        if (CollectionImg[index]?.imageLoad == false&& Collection.length>=CollectionImg.length) {
+            setImgLoadingNumber(index+1);
+            if(Collection[index]?.tokenUri === ""){
+                tempImgUrlBox[index] = {id: 'img' + index, imageUrl: "", imageLoad: true};
 
                 setCollectionImg([...tempImgUrlBox])
-            } else {
+            }else{
                 axios.get('/hyperwebs/nftimageurl?uri=' + Collection[index].tokenUri)
                     .then(function (response) {
                         let data = response.data;
-                        tempImgUrlBox[index] = { id: 'img' + index, imageUrl: response.data.url, imageLoad: true };
+                        tempImgUrlBox[index] = {id: 'img' + index, imageUrl: response.data.url, imageLoad: true};
 
                         setCollectionImg([...tempImgUrlBox])
                     })
-                    .catch(function (error) {
-                        tempImgUrlBox[index] = { id: 'img' + index, imageUrl: "", imageLoad: true };
+                    .catch(function (error){
+                        tempImgUrlBox[index] = {id: 'img' + index, imageUrl: "", imageLoad: true};
 
                         setCollectionImg([...tempImgUrlBox]);
                     })
@@ -183,7 +182,7 @@ export default function Collections(props) {
             .then(function (response) {
                 let data = response.data;
 
-                tempPriceBox[index] = { id: 'price' + (index), finalPrice: data.finalPrice, floorPrice: data.floorPrice, priceLoad: true }
+                tempPriceBox[index] = {id: 'price' + (index), finalPrice: data.finalPrice, floorPrice: data.floorPrice , priceLoad: true}
 
                 setPrice([...tempPriceBox]);
             })
@@ -194,7 +193,7 @@ export default function Collections(props) {
         <>
             <section className="text-gray-400 body-font relative">
                 <div className="fixed z-10 right-10 bottom-10 w-20 h-20">
-                    {/* 특정 위치로 스크롤 되며 올라오는 플로팅 버튼. 리스트가 길 경우 필요하면 사용 */}
+                    {/* 해당 위치로 스크롤 되며 올라오는 플로팅 버튼. 리스트가 길 경우 필요하면 사용 */}
                     <Link
                         className="shadow-xl cursor-pointer"
                         activeClass="active"
@@ -214,10 +213,11 @@ export default function Collections(props) {
                     <CollectionInfo
                         SearchAddress={SearchAddress}
                         Collection={Collection}
+                        CountCollection={CountCollection}
                     />
                 </div>
             </section>
-            <section className="py-24 mx-auto mt-80 md:mt-48 flex flex-wrap">
+            <section className="py-24 mx-auto mt-48 flex flex-wrap">
                 <div className="item-center justify-center mx-auto text-center">
                     <strong className="flex sm:text-3xl text-2xl font-extrabold text-gray-900 w-full text-center " >
                         Your NFT collections
@@ -230,7 +230,7 @@ export default function Collections(props) {
                         <div className="p-4" id={item.id}>
                             <div
                                 className="h-full border-2 border-gray-200 border-opacity-60 rounded-lg bg-cover cursor-pointer
-                                                    overflow-hidden transition duration-300 transform hover:shadow-lg">
+                                                    overflow-hidden transition duration-300 transform hover:shadow-lg hover:scale-105">
                                 <div id={'img' + item.id}>
                                     {CollectionImg[item.id]?.imageLoad == false ? (
                                         <img
@@ -241,7 +241,7 @@ export default function Collections(props) {
                                             width={600}
                                             height={450}
                                             unoptimized={true}
-                                            loading="lazy"
+                                            loading="eager"
                                             layout="responsive"
                                         />
                                     ) :
@@ -254,7 +254,7 @@ export default function Collections(props) {
                                                 width={600}
                                                 height={450}
                                                 unoptimized={true}
-                                                loading="lazy"
+                                                loading="eager"
                                                 layout="responsive"
                                             />
 
@@ -278,7 +278,7 @@ export default function Collections(props) {
                                 </div>
                                 <div className="p-4 flex flex-col">
                                     <h2 className="tracking-widest text-xs title-font font-medium text-gray-400 mb-1">No.{item.tokenIdInt}</h2>
-                                    <h1 className="title-font text-lg font-medium text-gray-900 mb-3">NFT NAME</h1>
+                                    <h1 className="title-font text-lg font-medium text-gray-900 mb-3">{item.projectName}</h1>
                                     <p className="leading-relaxed mb-3 -align-left flex">Final price : <img className="pt-3 object-scale-down h-5" src="/img/token/klaytnToken.png" />
                                         <span className="text-lightBlue-600">
                                             {Price[item.id]?.priceLoad ? Price[item.id]?.finalPrice : 'searching..'}

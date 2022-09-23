@@ -13,6 +13,7 @@ export default function Index() {
   const [InputAddress, setInputAddress] = useState("0x53f06FCf84E683309583377d00659E009f82659e");
   const [SearchAddress, setSearchAddress] = useState([]);
   const [Searching, setSearching] = useState(false);
+  const [CountCollection, setCountCollection] = useState(0);
   const [WorkUUID, setWorkUUID] = useState(uuid());
 
   const onChange = (event) => {
@@ -40,6 +41,8 @@ export default function Index() {
           let data = response.data;
 
           setSearchAddress(SearchAddress => [...SearchAddress, { id: InputAddress, countCollection: data[0].countCollection }]);
+
+          setCountCollection(CountCollection+data[0].countCollection);
 
           setSearching(false);
         })
@@ -109,6 +112,7 @@ export default function Index() {
                     let copy = [...SearchAddress]
                     copy.splice(key, 1)
                     DeleteAddress(item.id);
+                    setCountCollection(CountCollection-item.countCollection);
                     setSearchAddress(copy);
                     WalletList.unshift(item.id);
                   }} />
@@ -129,7 +133,8 @@ export default function Index() {
                   router.push({
                     pathname: '/collections',
                     query: { SearchAddress: JSON.stringify(SearchAddress),
-                             WorkUUID: JSON.stringify(WorkUUID)}
+                             WorkUUID: JSON.stringify(WorkUUID),
+                             CountCollection : JSON.stringify(CountCollection)}
                   })
 
                 }}

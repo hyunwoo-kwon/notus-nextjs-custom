@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { AiFillCloseCircle } from "react-icons/ai"
 import Animation from "./Animation";
-import image from "next/image";
 
 
 export default function CollectionInfo(props) {
@@ -101,10 +100,10 @@ export default function CollectionInfo(props) {
                         <div className="bg-slate-700 text-white py-1 "> Connected Wallets : {searchedAddress.length}</div>
                         <div className="bg-gray-200 p-4 overflow-y-scroll h-40">
                             {searchedAddress.map((item, key) => (
-                                <div className="flex text-sm mb-2 content-center align-middle" key={item.id}>
-                                    <div className="bg-gray-100 rounded-lg items-center focus:outline-none border border-slate-300 shadow-md p-2 w-84 flex flex-wrap">
+                                <div className="flex text-sm mb-1 content-center align-middle" key={item.id}>
+                                    <div className="bg-gray-100 rounded-lg items-center focus:outline-none border border-slate-300 shadow-md p-2 w-80 flex flex-wrap">
                                         <p className="text-xs overflow-hidden">{item.id}</p>
-                                        <span className="ml-3 text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full bg-sky-200">
+                                        <span className="ml-3 text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-lightBlue-600 bg-sky-200">
                                             {item.countCollection} {item.countCollection > 1 ? 'Collections' : 'Collection'}
                                         </span>
 
@@ -118,13 +117,10 @@ export default function CollectionInfo(props) {
                                 </div>
                             ))}
                         </div>
-
                     </div>
                 </div>
-
                 <div className="h-1 bg-blue-100 shadow-md"></div>
             </div>
-
         </>
     );
 }
