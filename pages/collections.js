@@ -217,7 +217,7 @@ export default function Collections(props) {
                     />
                 </div>
             </section>
-            <section className="py-24 mx-auto mt-48 flex flex-wrap">
+            <section className="py-24 mx-auto mt-80 md:mt-48 flex flex-wrap">
                 <div className="item-center justify-center mx-auto text-center">
                     <strong className="flex sm:text-3xl text-2xl font-extrabold text-gray-900 w-full text-center " >
                         Your NFT collections
