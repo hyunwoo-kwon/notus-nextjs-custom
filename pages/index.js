@@ -66,7 +66,7 @@ export default function Index() {
 
   return (
     <>
-      <section className="header relative pt-16 items-center flex h-screen max-h-860-px">
+      <section className="header relative pt-16 items-center flex min-h-screen max-h-860-px">
         <div className="container mx-auto items-center flex flex-wrap">
           <div className="w-full md:w-8/12 lg:w-6/12 xl:w-6/12 px-4">
             <div className="pt-32 sm:pt-0">
@@ -127,7 +127,7 @@ export default function Index() {
                       {item.id}
                       </span>
 
-                    <span className="ml-3 text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-lightBlue-600 bg-lightBlue-200">
+                    <span className="ml-3 text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-gray-600 bg-sky-200">
 
                       {item.countCollection} {item.countCollection > 1 ? 'Collections' : 'Collection'}
                     </span>
@@ -164,7 +164,7 @@ export default function Index() {
                   })
 
                 }}
-                className=" bg-pink-500 text-white active:bg-indigo-600 font-bold uppercase text-xs px-3 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150 " type="button">
+                className=" bg-pink-500 text-white active:bg-indigo-600 mb-28 font-bold uppercase text-xs px-3 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 ease-linear transition-all duration-150 " type="button">
                 View all collection
                 <i className="ml-3 fas fa-list p-2"></i>
               </button>
