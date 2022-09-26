@@ -11,29 +11,37 @@ import Image from "next/image";
 import CollectionInfo from "components/CollectionInfo";
 
 let tempImgUrlBox = [];
-let tempPriceBox  = [];
+let tempPriceBox = [];
 
 export default function Collections(props) {
     const router = useRouter();
-    const [SearchAddress    , setSearchAddress      ] = useState(JSON.parse(router.query.SearchAddress));
-    const [WorkUUID         , setWorkUUID           ] = useState(JSON.parse(router.query.WorkUUID));
-    const [CountCollection  , setCountCollection    ] = useState(JSON.parse(router.query.CountCollection));
-    const [Collection, setCollection] = useState([]);
-    const [CollectionImg, setCollectionImg] = useState([]);
-    const [Price, setPrice] = useState([]);
-    const [PageParam, setPageParam] = useState(0);
-    const [CollectionFeching, setCollectionFeching] = useState(false);
-    const [ImgLoadingNumber, setImgLoadingNumber] = useState(0);
-    const [ImgLoading, setImgLoading] = useState(false);
+    const [SearchAddress,       setSearchAddress] = useState(JSON.parse(router.query.SearchAddress));
+    const [WorkUUID,            setWorkUUID] = useState(JSON.parse(router.query.WorkUUID));
+    const [CountCollection,     setCountCollection] = useState(JSON.parse(router.query.CountCollection));
+    const [Collection,          setCollection] = useState([]);
+    const [CollectionImg,       setCollectionImg] = useState([]);
+    const [Price,               setPrice] = useState([]);
+    const [PageParam,           setPageParam] = useState(0);
+    const [CollectionFeching,   setCollectionFeching] = useState(false);
+    const [ImgLoadingNumber,    setImgLoadingNumber] = useState(0);
+    const [ImgLoading,          setImgLoading] = useState(false);
 
-    const [PriceLoading, setPriceLoading] = useState(false);
-    const [PriceLoadingNumber, setPriceLoadingNumber] = useState(0);
+    const [PriceLoading,        setPriceLoading] = useState(false);
+    const [PriceLoadingNumber,  setPriceLoadingNumber] = useState(0);
+    const [headInfo,            setHeadInfo] = useState(true);
+
+
+    const handleInfobox = () => {
+        setHeadInfo(
+            !headInfo
+        )
+    }
 
     //컬렉션 조회 후 파라메터 세팅
     useEffect(() => {
         console.log("useEffect = 컬렉션 조회 후 파라메터 세팅")
-        console.log("Collection.length>0 : " +Collection.length +" CollectionFeching==true : "+CollectionFeching )
-        setPageParam(PageParam+1);
+        console.log("Collection.length>0 : " + Collection.length + " CollectionFeching==true : " + CollectionFeching)
+        setPageParam(PageParam + 1);
         setCollectionFeching(false);
     }, [Collection.length > 0
         && CollectionFeching == true]);
@@ -103,7 +111,7 @@ export default function Collections(props) {
             // scroll event listener 해제
             window.removeEventListener("scroll", handleScroll);
         };
-    },[]);
+    }, []);
 
     // 스크롤 이벤트 핸들러
     const handleScroll = () => {
@@ -122,13 +130,13 @@ export default function Collections(props) {
         axios.get(`/hyperwebs/nftlistowner?workUUID=${WorkUUID}&page=${PageParam}`)
             .then(function (response) {
                 var data = response.data;
-                let tempCollection=[];
-                let tempCollectionImg=[];
-                let tempPrice=[];
+                let tempCollection = [];
+                let tempCollectionImg = [];
+                let tempPrice = [];
                 console.log(JSON.stringify(data))
                 data.forEach((d, index) => {
                     tempCollection.push({
-                        id: startIndex+index, type: 'kip17', address: d.address, projectName: d.projectName, contractAddress: d.contractAddress, tokenId: d.tokenId, tokenIdInt: d.tokenIdInt
+                        id: startIndex + index, type: 'kip17', address: d.address, projectName: d.projectName, contractAddress: d.contractAddress, tokenId: d.tokenId, tokenIdInt: d.tokenIdInt
                         , tokenUri: d.tokenUri, finalPrice: d.finalPrice
                     })
                     tempCollectionImg.push({
@@ -153,22 +161,22 @@ export default function Collections(props) {
     }
 
     function SearchImgURL(index) {
-        if (CollectionImg[index]?.imageLoad == false&& Collection.length>=CollectionImg.length) {
-            setImgLoadingNumber(index+1);
-            if(Collection[index]?.tokenUri === ""){
-                tempImgUrlBox[index] = {id: 'img' + index, imageUrl: "", imageLoad: true};
+        if (CollectionImg[index]?.imageLoad == false && Collection.length >= CollectionImg.length) {
+            setImgLoadingNumber(index + 1);
+            if (Collection[index]?.tokenUri === "") {
+                tempImgUrlBox[index] = { id: 'img' + index, imageUrl: "", imageLoad: true };
 
                 setCollectionImg([...tempImgUrlBox])
-            }else{
+            } else {
                 axios.get('/hyperwebs/nftimageurl?uri=' + Collection[index].tokenUri)
                     .then(function (response) {
                         let data = response.data;
-                        tempImgUrlBox[index] = {id: 'img' + index, imageUrl: response.data.url, imageLoad: true};
+                        tempImgUrlBox[index] = { id: 'img' + index, imageUrl: response.data.url, imageLoad: true };
 
                         setCollectionImg([...tempImgUrlBox])
                     })
-                    .catch(function (error){
-                        tempImgUrlBox[index] = {id: 'img' + index, imageUrl: "", imageLoad: true};
+                    .catch(function (error) {
+                        tempImgUrlBox[index] = { id: 'img' + index, imageUrl: "", imageLoad: true };
 
                         setCollectionImg([...tempImgUrlBox]);
                     })
@@ -182,7 +190,7 @@ export default function Collections(props) {
             .then(function (response) {
                 let data = response.data;
 
-                tempPriceBox[index] = {id: 'price' + (index), finalPrice: data.finalPrice, floorPrice: data.floorPrice , priceLoad: true}
+                tempPriceBox[index] = { id: 'price' + (index), finalPrice: data.finalPrice, floorPrice: data.floorPrice, priceLoad: true }
 
                 setPrice([...tempPriceBox]);
             })
@@ -210,14 +218,27 @@ export default function Collections(props) {
             </section>
             <section className="flex flex-wrap relative text-center">
                 <div className="fixed z-10 w-full">
-                    <CollectionInfo
-                        SearchAddress={SearchAddress}
-                        Collection={Collection}
-                        CountCollection={CountCollection}
-                    />
+                    {headInfo === true ?
+                        <div>
+                            <CollectionInfo
+                                SearchAddress={SearchAddress}
+                                Collection={Collection}
+                                CountCollection={CountCollection}
+                            />
+                            <button className="flex mx-auto fiexd top-10 text-lg">
+                                <div onClick={handleInfobox}>🔼</div>
+                            </button>
+                        </div>
+
+                        : <button className="fixed my-11 text-lg w-1920">
+                            <div onClick={handleInfobox}>🔽</div>
+                        </button>
+                    }
+
                 </div>
+
             </section>
-            <section className="py-24 mx-auto mt-60 flex flex-wrap">
+            <section className="py-24 mx-auto mt-48 flex flex-wrap">
                 <div className="item-center justify-center mx-auto text-center">
                     <strong className="flex sm:text-3xl text-2xl font-extrabold text-gray-900 w-full text-center " >
                         Your NFT collections
