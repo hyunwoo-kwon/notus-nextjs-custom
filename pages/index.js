@@ -40,7 +40,7 @@ export default function Index() {
         .then(function (response) {
           let data = response.data;
 
-          setSearchAddress(SearchAddress => [...SearchAddress, { id: InputAddress, countCollection: data[0].countCollection }]);
+          setSearchAddress(SearchAddress => [...SearchAddress, { id: InputAddress, type: 'kip17' , countCollection: data[0].countCollection }]);
 
           setCountCollection(CountCollection+data[0].countCollection);
 
