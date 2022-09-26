@@ -6,6 +6,7 @@ import { SearchAddressParam } from "../form/SearchAddressParam";
 import { useRouter } from 'next/router'
 import { AiFillCloseCircle } from "react-icons/ai"
 import WalletList from "components/WalletList";
+import Image from "next/image";
 
 export default function Index() {
   console.log("Index render")
@@ -40,9 +41,9 @@ export default function Index() {
         .then(function (response) {
           let data = response.data;
 
-          setSearchAddress(SearchAddress => [...SearchAddress, { id: InputAddress, type: 'kip17' , countCollection: data[0].countCollection }]);
+          setSearchAddress(SearchAddress => [...SearchAddress, { id: InputAddress, type: 'kip17', countCollection: data[0].countCollection }]);
 
-          setCountCollection(CountCollection+data[0].countCollection);
+          setCountCollection(CountCollection + data[0].countCollection);
 
           setSearching(false);
         })
@@ -53,13 +54,13 @@ export default function Index() {
     }
   }
 
-  function DeleteAddress(Address){
+  function DeleteAddress(Address) {
     let param = new SearchAddressParam("kip17", Address, WorkUUID);
 
     axios.post('/hyperwebs/deladdress', param.value)
-        .catch(function (error) {
-          console.log("error = " + error)
-        });
+      .catch(function (error) {
+        console.log("error = " + error)
+      });
 
   }
 
@@ -101,8 +102,31 @@ export default function Index() {
               {SearchAddress.map((item, key) => (
 
                 <div className="flex text-sm mb-4" key={item.id}>
-                  <div className="bg-gray-100 rounded-full items-center hover:bg-gray-300 focus:outline-none border border-slate-300 shadow-md p-2">
-                    <span className="font-bold ml-1"> Address</span> : {item.id}
+                  <div className="flex bg-gray-100 rounded-full items-center hover:bg-gray-300 focus:outline-none border border-slate-300 shadow-md p-2">
+                    <span className="font-bold ml-1"> {item.type === 'kip17' ? (
+                      <img
+                        className="rounded-t-xl ml-2 mb-1 "
+                        src="../img/klaytn-klay-logo.png"
+                        alt="cover image"
+                        width="25px"
+                        height="25px"
+                        layout="responsive"
+                        objectFit="cover"
+                        quality={100}
+                      />)
+                      :
+                      item.type === 'erc721' ? (
+                        <img
+                          src="../img/klaytn-klay-logo.png"
+                          width="20px"
+                          height="50%"
+                        />)
+                        : null
+                    } </span>
+                    <span className="ml-3">
+                      {item.id}
+                      </span>
+
                     <span className="ml-3 text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-lightBlue-600 bg-lightBlue-200">
 
                       {item.countCollection} {item.countCollection > 1 ? 'Collections' : 'Collection'}
@@ -112,7 +136,7 @@ export default function Index() {
                     let copy = [...SearchAddress]
                     copy.splice(key, 1)
                     DeleteAddress(item.id);
-                    setCountCollection(CountCollection-item.countCollection);
+                    setCountCollection(CountCollection - item.countCollection);
                     setSearchAddress(copy);
                     WalletList.unshift(item.id);
                   }} />
@@ -132,9 +156,11 @@ export default function Index() {
                 onClick={() => {
                   router.push({
                     pathname: '/collections',
-                    query: { SearchAddress: JSON.stringify(SearchAddress),
-                             WorkUUID: JSON.stringify(WorkUUID),
-                             CountCollection : JSON.stringify(CountCollection)}
+                    query: {
+                      SearchAddress: JSON.stringify(SearchAddress),
+                      WorkUUID: JSON.stringify(WorkUUID),
+                      CountCollection: JSON.stringify(CountCollection)
+                    }
                   })
 
                 }}
