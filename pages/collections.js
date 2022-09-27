@@ -39,15 +39,6 @@ export default function Collections(props) {
         )
     }
 
-    //컬렉션 조회 후 파라메터 세팅
-    useEffect(() => {
-        console.log("useEffect = 컬렉션 조회 후 파라메터 세팅")
-        console.log("Collection.length>0 : " + Collection.length + " CollectionFeching==true : " + CollectionFeching)
-        setPageParam(PageParam + 1);
-        setCollectionFeching(false);
-    }, [Collection.length > 0
-        && CollectionFeching == true]);
-
     //초기 1번만 실행(조회)
     useEffect(() => {
         tempImgUrlBox = [];
@@ -56,12 +47,14 @@ export default function Collections(props) {
 
     //CollectionFeching 추가조회가 시작(true)되면 실행
     useEffect(() => {
-        SearchCollection();
-    }, [CollectionFeching == true]);
+        if(CollectionFeching){
+            SearchCollection();
+        }
+    }, [CollectionFeching]);
 
     useEffect(() => {
-        //이미지가 로딩중이면 이미지 서칭 시작
         if (ImgLoading) {
+            //이미지가 로딩중이면 이미지 서칭 시작
             SearchImgURL(ImgLoadingNumber);
             if (CollectionImg.length > ImgLoadingNumber + 1) {
                 //추가 로딩할 이미지가 있으면 계속 진행
@@ -69,17 +62,13 @@ export default function Collections(props) {
                 //추가 로딩할 이미지가 없으면 종료
                 setImgLoading(false);
             }
-        }
-
-    }, [ImgLoading === true, Collection, CollectionImg]);
-
-    useEffect(() => {
-        //로딩 해야할 이미지 여부 확인
-        if (CollectionImg.length > ImgLoadingNumber) {
+        }else if (ImgLoading === false && CollectionImg.length > ImgLoadingNumber) {
+            //로딩 해야할 이미지 여부 확인
             //이미지 로딩상태로 변경
             setImgLoading(true);
         }
-    }, [ImgLoading === false, Collection, CollectionImg]);
+    }, [ImgLoading, Collection, CollectionImg]);
+
     //
     // //가격정보
     // useEffect(() => {
@@ -107,7 +96,6 @@ export default function Collections(props) {
 
     //스크롤 상태 조회
     useEffect(() => {
-
         window.addEventListener("scroll", handleScroll);
         return () => {
             // scroll event listener 해제
@@ -121,7 +109,10 @@ export default function Collections(props) {
         const scrollTop = document.documentElement.scrollTop;
         const clientHeight = document.documentElement.clientHeight;
 
+        console.log(" scrollTop = " + scrollTop + " clientHeight = " + clientHeight + "scrollHeight = " + scrollHeight + " CollectionFeching = "+CollectionFeching)
+
         if (scrollTop + clientHeight >= scrollHeight - 1 && !CollectionFeching) {
+            console.log("true!!")
             setCollectionFeching(true);
         }
     };
@@ -158,7 +149,11 @@ export default function Collections(props) {
                 setPrice(price => [...price, ...tempPrice]);
                 setCollection(collection => [...collection, ...tempCollection]);
 
-                console.log("axios CollectionFeching data = " + CollectionFeching)
+                console.log("axios CollectionFeching data = " + CollectionFeching);
+
+                //컬렉션 조회 후 파라메터 세팅
+                setPageParam(PageParam + 1);
+                setCollectionFeching(false);
             })
     }
 
@@ -251,6 +246,7 @@ export default function Collections(props) {
 
 
                 <div className="grid grid-cols-7 mx-auto mt-10 px-20" id="section1">
+                    {CollectionFeching}
                     {Collection?.map((item) => (
                         <div className="p-4" id={item.id}>
                             <div
