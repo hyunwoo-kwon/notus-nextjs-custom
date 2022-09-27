@@ -52,6 +52,7 @@ export default function Collections(props) {
         }
     }, [CollectionFeching]);
 
+    //이미지정보
     useEffect(() => {
         if (ImgLoading) {
             //이미지가 로딩중이면 이미지 서칭 시작
@@ -68,6 +69,24 @@ export default function Collections(props) {
             setImgLoading(true);
         }
     }, [ImgLoading, Collection, CollectionImg]);
+
+    //가격정보
+    // useEffect(() => {
+    //     if (PriceLoading) {
+    //         //이미지가 로딩중이면 이미지 서칭 시작
+    //         SearchPrice(PriceLoadingNumber);
+    //         if(Price.length > PriceLoadingNumber+1){
+    //             //추가 로딩할 가격정보가 있으면 계속 진행
+    //         }else{
+    //             //추가 로딩할 가격정보가 없으면 종료
+    //             setPriceLoading(false);
+    //         }
+    //     }else if (PriceLoading === false && Price.length > PriceLoadingNumber) {
+    //         //로딩 해야할 이미지 여부 확인
+    //         //이미지 로딩상태로 변경
+    //         setPriceLoading(true);
+    //     }
+    // }, [PriceLoading, Collection, Price]);
 
     //
     // //가격정보
@@ -183,14 +202,22 @@ export default function Collections(props) {
     }
 
     function SearchPrice(index) {
-        axios.get('/hyperwebs/nftsingleprice?workUUID=' + WorkUUID + '&type=' + Collection[index].type + '&contractAddress=' + Collection[index].contractAddress + '&tokenId=' + Collection[index].tokenId)
-            .then(function (response) {
-                let data = response.data;
+        if (Price[index]?.priceLoad == false && Collection.length >= Price.length) {
+            setPriceLoadingNumber(index + 1);
+            axios.get('/hyperwebs/nftsingleprice?workUUID=' + WorkUUID + '&type=' + Collection[index].type + '&contractAddress=' + Collection[index].contractAddress + '&tokenId=' + Collection[index].tokenId)
+                .then(function (response) {
+                    let data = response.data;
+                    console.log("SearchPrice data = " + JSON.stringify(data))
+                    tempPriceBox[index] = {
+                        id: 'price' + (index),
+                        finalPrice: data.finalPrice,
+                        floorPrice: data.floorPrice,
+                        priceLoad: true
+                    }
 
-                tempPriceBox[index] = { id: 'price' + (index), finalPrice: data.finalPrice, floorPrice: data.floorPrice, priceLoad: true }
-
-                setPrice([...tempPriceBox]);
-            })
+                    setPrice([...tempPriceBox]);
+                })
+        }
     }
 
 
@@ -355,6 +382,29 @@ export default function Collections(props) {
                     ))}
                 </div>
             </section>
+            <div className="flex items-center justify-center">
+                <span className="relative inline-flex">
+                  <button type="button"
+                          className="inline-flex items-center px-4 py-2 font-semibold leading-6 text-xl shadow rounded-md text-sky-500 bg-white dark:bg-slate-800 transition ease-in-out duration-150 cursor-not-allowed ring-1 ring-slate-900/10 dark:ring-slate-200/20"
+                          disabled="">
+                    {Collection.length}/{TotalCountCollection}
+                      {Collection.length>=TotalCountCollection? (
+                          <>
+                            <br/>(End page)
+                          </>
+                      ) : (
+                          <>
+                              <br/>(Scroll down)
+                          </>
+                      )}
+
+                  </button>
+                  <span className="flex absolute h-3 w-3 top-0 right-0 -mt-1 -mr-1">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-sky-500"></span>
+                  </span>
+                </span>
+            </div>
             <br /><br /><br /><br /><br /><br />
         </>
     );
