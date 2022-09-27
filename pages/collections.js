@@ -130,7 +130,7 @@ export default function Collections(props) {
 
         console.log(" scrollTop = " + scrollTop + " clientHeight = " + clientHeight + "scrollHeight = " + scrollHeight + " CollectionFeching = "+CollectionFeching)
 
-        if (scrollTop + clientHeight >= scrollHeight - 1 && !CollectionFeching) {
+        if (scrollTop + clientHeight >= scrollHeight - 1 && !CollectionFeching && Collection.length < TotalCountCollection) {
             console.log("true!!")
             setCollectionFeching(true);
         }
@@ -385,7 +385,7 @@ export default function Collections(props) {
             <div className="flex items-center justify-center">
                 <span className="relative inline-flex">
                   <button type="button"
-                          className="inline-flex items-center px-4 py-2 font-semibold leading-6 text-xl shadow rounded-md text-sky-500 bg-white dark:bg-slate-800 transition ease-in-out duration-150 cursor-not-allowed ring-1 ring-slate-900/10 dark:ring-slate-200/20"
+                          className="bg-green-100 inline-flex items-center px-4 py-2 font-semibold leading-6 text-xl shadow rounded-md text-sky-500 bg-white dark:bg-slate-800 transition ease-in-out duration-150 cursor-not-allowed ring-1 ring-slate-900/10 dark:ring-slate-200/20"
                           disabled="">
                     {Collection.length}/{TotalCountCollection}
                       {Collection.length>=TotalCountCollection? (
