@@ -17,7 +17,9 @@ export default function Collections(props) {
     const router = useRouter();
     const [SearchAddress,       setSearchAddress] = useState(JSON.parse(router.query.SearchAddress));
     const [WorkUUID,            setWorkUUID] = useState(JSON.parse(router.query.WorkUUID));
-    const [CountCollection,     setCountCollection] = useState(JSON.parse(router.query.CountCollection));
+    const [TotalCountCollection,     setTotalCountCollection] = useState(JSON.parse(router.query.TotalCountCollection));
+    const [EthereumCountCollection, setEthereumCountCollection] = useState(JSON.parse(router.query.EthereumCountCollection));
+    const [KlaytnCountCollection, setKlaytnCountCollection] = useState(JSON.parse(router.query.KlaytnCountCollection));
     const [Collection,          setCollection] = useState([]);
     const [CollectionImg,       setCollectionImg] = useState([]);
     const [Price,               setPrice] = useState([]);
@@ -136,7 +138,7 @@ export default function Collections(props) {
                 console.log(JSON.stringify(data))
                 data.forEach((d, index) => {
                     tempCollection.push({
-                        id: startIndex + index, type: 'kip17', address: d.address, projectName: d.projectName, contractAddress: d.contractAddress, tokenId: d.tokenId, tokenIdInt: d.tokenIdInt
+                        id: startIndex + index, mainNetType: d.mainNetType, type: d.type, address: d.address, projectName: d.projectName, contractAddress: d.contractAddress, tokenId: d.tokenId, tokenIdInt: d.tokenIdInt
                         , tokenUri: d.tokenUri, finalPrice: d.finalPrice
                     })
                     tempCollectionImg.push({
@@ -223,7 +225,9 @@ export default function Collections(props) {
                             <CollectionInfo
                                 SearchAddress={SearchAddress}
                                 Collection={Collection}
-                                CountCollection={CountCollection}
+                                CountCollection={TotalCountCollection}
+                                EthereumCountCollection = {EthereumCountCollection}
+                                KlaytnCountCollection = {KlaytnCountCollection}
                             />
                             <button className="flex mx-auto fiexd top-10 text-lg">
                                 <div onClick={handleInfobox}>🔼</div>
@@ -306,12 +310,26 @@ export default function Collections(props) {
                                         </span>
                                     </p>
                                     <div className="flex items-center flex-wrap ">
-                                        <a className="text-indigo-500 inline-flex items-center md:mb-2 lg:mb-0" target="_blank" href={'https://scope.klaytn.com/nft/' + item.contractAddress + '/' + item.tokenIdInt}>View contract
-                                            <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M5 12h14"></path>
-                                                <path d="M12 5l7 7-7 7"></path>
-                                            </svg>
-                                        </a>
+                                        {item.mainNetType === 'ethereum'? (
+                                                <>
+                                                    <a className="text-indigo-500 inline-flex items-center md:mb-2 lg:mb-0" target="_blank" href={'https://etherscan.io/token/' + item.contractAddress + '?a=' + item.tokenIdInt}>View contract
+                                                        <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                            <path d="M5 12h14"></path>
+                                                            <path d="M12 5l7 7-7 7"></path>
+                                                        </svg>
+                                                    </a>
+                                                </>
+                                            ):(
+                                                <>
+                                                    <a className="text-indigo-500 inline-flex items-center md:mb-2 lg:mb-0" target="_blank" href={'https://scope.klaytn.com/nft/' + item.contractAddress + '/' + item.tokenIdInt}>View contract
+                                                        <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                            <path d="M5 12h14"></path>
+                                                            <path d="M12 5l7 7-7 7"></path>
+                                                        </svg>
+                                                    </a>
+                                                </>
+                                            )}
+
                                         <span className="text-gray-400 mr-3 inline-flex items-center lg:ml-auto md:ml-0 ml-auto leading-none text-sm pr-3 py-1 border-r-2 border-gray-200">
                                             <svg className="w-4 h-4 mr-1" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>

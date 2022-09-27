@@ -14,7 +14,9 @@ export default function Index() {
   const [InputAddress, setInputAddress] = useState("0x53f06FCf84E683309583377d00659E009f82659e");
   const [SearchAddress, setSearchAddress] = useState([]);
   const [Searching, setSearching] = useState(false);
-  const [CountCollection, setCountCollection] = useState(0);
+  const [TotalCountCollection, setTotalCountCollection] = useState(0);
+  const [EthereumCountCollection, setEthereumCountCollection] = useState(0);
+  const [KlaytnCountCollection, setKlaytnCountCollection] = useState(0);
   const [WorkUUID, setWorkUUID] = useState(uuid());
 
   const onChange = (event) => {
@@ -43,7 +45,13 @@ export default function Index() {
 
           setSearchAddress(SearchAddress => [...SearchAddress, { id: InputAddress, type: data[0].type, countCollection: data[0].countCollection }]);
 
-          setCountCollection(CountCollection + data[0].countCollection);
+          setTotalCountCollection(TotalCountCollection + data[0].countCollection);
+
+          if(data[0].type === "klaytn"){
+            setKlaytnCountCollection(KlaytnCountCollection + data[0].countCollection);
+          }else if(data[0].type === "ethereum"){
+            setEthereumCountCollection(EthereumCountCollection + data[0].countCollection);
+          }
 
           setSearching(false);
         })
@@ -136,7 +144,14 @@ export default function Index() {
                     let copy = [...SearchAddress]
                     copy.splice(key, 1)
                     DeleteAddress(item.id);
-                    setCountCollection(CountCollection - item.countCollection);
+                    setTotalCountCollection(TotalCountCollection - item.countCollection);
+
+                    if(item.type === "klaytn"){
+                      setKlaytnCountCollection(KlaytnCountCollection - item.countCollection);
+                    }else if(item.type === "ethereum"){
+                      setEthereumCountCollection(EthereumCountCollection - item.countCollection);
+                    }
+
                     setSearchAddress(copy);
                     WalletList.unshift(item.id);
                   }} />
@@ -159,7 +174,9 @@ export default function Index() {
                     query: {
                       SearchAddress: JSON.stringify(SearchAddress),
                       WorkUUID: JSON.stringify(WorkUUID),
-                      CountCollection: JSON.stringify(CountCollection)
+                      TotalCountCollection: JSON.stringify(TotalCountCollection),
+                      KlaytnCountCollection : JSON.stringify(KlaytnCountCollection),
+                      EthereumCountCollection : JSON.stringify(EthereumCountCollection)
                     }
                   })
 

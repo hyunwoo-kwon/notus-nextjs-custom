@@ -18,7 +18,7 @@ export default function CollectionInfo(props) {
                             <Animation />
                         </div>
                         <strong className="text-xl w-full text-left ml-10">
-                            돈 졸라 많이 버셨네요! 축하드려요!!!  <br /> 떡상 축 46% 냠냠 중이심
+                            돈 졸라 많이 버셨네요! 축하드려요!!!  <br /> 떡상 축 46% 냠냠 중이심!
                         </strong>
                         <div>
                             <div className="py-2 md:px-4 mx-2 rounded-md my-auto h-30 w-20 border-2 border-slate-800">
@@ -32,7 +32,7 @@ export default function CollectionInfo(props) {
                                     objectFit="cover"
                                     quality={100}
                                 />
-                                <p className="leading-snug text-center font-medium text-sm text-gray-900">TOTAL <br /> {props.Collection.length}</p>
+                                <p className="leading-snug text-center font-medium text-sm text-gray-900">TOTAL <br /> {props.CountCollection}</p>
                             </div>
                         </div>
                         <div>
@@ -47,7 +47,7 @@ export default function CollectionInfo(props) {
                                     objectFit="cover"
                                     quality={100}
                                 />
-                                <p className="leading-snug text-center font-medium text-sm text-gray-900">ETH <br /> {props.Collection.length}</p>
+                                <p className="leading-snug text-center font-medium text-sm text-gray-900">ETH <br /> {props.EthereumCountCollection}</p>
                             </div>
                         </div>
                         <div>
@@ -62,7 +62,7 @@ export default function CollectionInfo(props) {
                                     objectFit="cover"
                                     quality={100}
                                 />
-                                <p className="leading-snug text-center font-medium text-sm text-gray-900">klaytn <br /> {props.Collection.length}</p>
+                                <p className="leading-snug text-center font-medium text-sm text-gray-900">klaytn <br /> {props.KlaytnCountCollection}</p>
                             </div>
                         </div>
                         <div>
@@ -77,7 +77,7 @@ export default function CollectionInfo(props) {
                                     objectFit="cover"
                                     quality={100}
                                 />
-                                <p className="leading-snug text-center font-medium text-sm text-gray-900">Sol <br /> {props.Collection.length}</p>
+                                <p className="leading-snug text-center font-medium text-sm text-gray-900">Sol <br /> 0</p>
                             </div>
                         </div>
 
