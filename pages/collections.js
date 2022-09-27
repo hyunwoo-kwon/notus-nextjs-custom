@@ -299,7 +299,7 @@ export default function Collections(props) {
                                 </div>
                                 <div className="p-4 flex flex-col">
                                     <h2 className="tracking-widest text-xs title-font font-medium text-gray-400 mb-1">No.{item.tokenIdInt}</h2>
-                                    <h1 className="title-font text-lg font-medium text-gray-900 mb-3">{item.projectName}</h1>
+                                    <h1 className="title-font text-lg font-medium text-gray-900 mb-3">{item.projectName === '' ? (<>..</>) : item.projectName}</h1>
                                     <p className="leading-relaxed mb-3 -align-left flex">Final price : <img className="pt-3 object-scale-down h-5" src="/img/token/klaytnToken.png" />
                                         <span className="text-lightBlue-600">
                                             {Price[item.id]?.priceLoad ? Price[item.id]?.finalPrice : 'searching..'}

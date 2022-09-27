@@ -31,7 +31,7 @@ export default function Index() {
     if (SearchAddress.findIndex(search => search.id === InputAddress) != '-1' || InputAddress === '') {
       setInputAddress("");
     } else {
-      let param = new SearchAddressParam("kip17", InputAddress, WorkUUID);
+      let param = new SearchAddressParam("", InputAddress, WorkUUID);
 
       setInputAddress("");
 
@@ -41,7 +41,7 @@ export default function Index() {
         .then(function (response) {
           let data = response.data;
 
-          setSearchAddress(SearchAddress => [...SearchAddress, { id: InputAddress, type: 'kip17', countCollection: data[0].countCollection }]);
+          setSearchAddress(SearchAddress => [...SearchAddress, { id: InputAddress, type: data[0].type, countCollection: data[0].countCollection }]);
 
           setCountCollection(CountCollection + data[0].countCollection);
 
@@ -103,7 +103,8 @@ export default function Index() {
 
                 <div className="flex text-sm mb-4" key={item.id}>
                   <div className="flex bg-gray-100 rounded-full items-center hover:bg-gray-300 focus:outline-none border border-slate-300 shadow-md p-2">
-                    <span className="font-bold ml-1"> {item.type === 'kip17' ? (
+                    <span className="font-bold ml-1">
+                      {item.type === 'klaytn' ? (
                       <img
                         className="rounded-t-xl ml-2 mb-1 "
                         src="../img/klaytn-klay-logo.png"
@@ -114,10 +115,9 @@ export default function Index() {
                         objectFit="cover"
                         quality={100}
                       />)
-                      :
-                      item.type === 'erc721' ? (
+                      : item.type === 'ethereum' ? (
                         <img
-                          src="../img/klaytn-klay-logo.png"
+                          src="../img/eth-logo.svg"
                           width="20px"
                           height="50%"
                         />)
